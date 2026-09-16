@@ -73,3 +73,7 @@ hl.animation({ leaf = "fadeLayersIn", enabled = true, speed = 4, bezier = "almos
 hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 3, bezier = "almostLinear" })
 hl.animation({ leaf = "workspaces", enabled = false })
 hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 5, bezier = "mechanical", style = "slidevert" })
+
+-- Oblivion Signal cursor theme (XCursor; Hyprland falls back from hyprcursor)
+hl.env("XCURSOR_THEME", "oblivion-signal-cursors")
+hl.env("XCURSOR_SIZE", "24")

@@ -15,7 +15,9 @@ theme_gtk3="$HOME/.config/omarchy/themes/oblivion-signal/gtk3.css"
 gtk3_css="$HOME/.config/gtk-3.0/gtk.css"
 gtk3_backup="$state_dir/oblivion-signal-previous-gtk3-css"
 theme_icons="$HOME/.config/omarchy/themes/oblivion-signal/icons/oblivion-signal"
+theme_cursors="$HOME/.config/omarchy/themes/oblivion-signal/icons/oblivion-signal-cursors"
 user_icons="$HOME/.local/share/icons/oblivion-signal"
+user_cursors="$HOME/.local/share/icons/oblivion-signal-cursors"
 
 apply_font() {
   local name="$1" size=""
@@ -55,12 +57,15 @@ if [[ $theme == "oblivion-signal" ]]; then
     ln -sfn "$theme_icons" "$user_icons"
     gtk-update-icon-cache -f -q "$user_icons" 2>/dev/null || true
   fi
-  # Cursor: Adwaita's white monoline pointer fits the instrument look.
+  if [[ -d $theme_cursors && ! -e $user_cursors ]]; then
+    ln -sfn "$theme_cursors" "$user_cursors"
+  fi
+  # Cursor: recolored Bibata — steel-ice fill, void-dark edge.
   prev_cursor=$(gsettings get org.gnome.desktop.interface cursor-theme | tr -d "'")
-  if [[ -n $prev_cursor && $prev_cursor != "Adwaita" ]]; then
+  if [[ -n $prev_cursor && $prev_cursor != "oblivion-signal-cursors" ]]; then
     echo "$prev_cursor" >"$cursor_file"
   fi
-  gsettings set org.gnome.desktop.interface cursor-theme "Adwaita"
+  gsettings set org.gnome.desktop.interface cursor-theme "oblivion-signal-cursors"
 elif [[ -f $state_file ]]; then
   apply_font "$(cat "$state_file")"
   rm -f "$state_file"
