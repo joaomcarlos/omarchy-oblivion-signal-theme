@@ -1,0 +1,40 @@
+# Palette sampled from the light-table frame (00_05_3800101): steel-ice
+# blue UI on blue-slate darks, dusty salmon-crimson as the exception color.
+# Not the saturated teal of the first pass — the film's displays are colder
+# and bluer, with a mauve-leaning red.
+mode = "dark"
+
+accent = "#6FA8CC"
+selection = "#2A4258"
+muted = "#2C4A61"
+
+# Active window border — one-pixel steel-blue outline per component language.
+active_border_color = "#6FA8CC"
+# Active tab background in themed editors/terminals.
+active_tab_background = "#2A4258"
+
+background = "#0D141C"
+dark_background = "#080D13"
+darker_background = "#05080C"
+lighter_background = "#1B2A3A"
+
+foreground = "#B5D2E3"
+dark_foreground = "#5F7F93"
+light_foreground = "#A3CFE3"
+bright_foreground = "#E2EFF8"
+
+red = "#A6455C"
+yellow = "#D8D9A8"
+orange = "#C4705C"
+green = "#87AEA2"
+cyan = "#70A7CC"
+blue = "#6C98B7"
+magenta = "#A793AE"
+brown = "#6E5851"
+
+bright_red = "#C06A7C"
+bright_yellow = "#E4E5B8"
+bright_green = "#A9CFC0"
+bright_cyan = "#A3CFE3"
+bright_blue = "#C2DDF0"
+bright_magenta = "#C4AEC4"

@@ -1,0 +1,86 @@
+# Oblivion Signal — btop theme
+# Near-black void, structural teal rules, cyan active data, coral exceptions.
+# Schema: btop 1.4.x key names (verified against installed version).
+
+# Main background — empty = transparent terminal background
+theme[main_bg]=""
+theme_background=false
+
+# Main text and titles
+theme[main_fg]="#B5D2E3"
+theme[title]="#5F7F93"
+theme[hi_fg]="#9CC4DC"
+
+# Selected process row
+theme[selected_bg]="#2A4258"
+theme[selected_fg]="#B5D2E3"
+
+# Inactive / disabled text
+theme[inactive_fg]="#2C4A61"
+
+# Text on top of graphs (uptime, net scale)
+theme[graph_text]="#B5D2E3"
+
+# Percentage meter background
+theme[meter_bg]="#1B2A3A"
+
+# Process box misc — mini graphs, details
+theme[proc_misc]="#6FA8CC"
+
+# Box outlines — uniform structural teal, hard rules
+theme[cpu_box]="#2C4A61"
+theme[mem_box]="#2C4A61"
+theme[net_box]="#2C4A61"
+theme[proc_box]="#2C4A61"
+theme[div_line]="#2C4A61"
+
+# Temperature gradient — cyan to coral
+theme[temp_start]="#6FA8CC"
+theme[temp_mid]="#9CC4DC"
+theme[temp_end]="#A6455C"
+
+# CPU graph — cyan ramp into warm alert
+theme[cpu_start]="#6FA8CC"
+theme[cpu_mid]="#9CC4DC"
+theme[cpu_end]="#C4705C"
+
+# Memory meters — free is quiet, used ramps to bright
+theme[free_start]="#1B2A3A"
+theme[free_mid]="#2C4A61"
+theme[free_end]="#6FA8CC"
+
+theme[cached_start]="#2C4A61"
+theme[cached_mid]="#5F7F93"
+theme[cached_end]="#9CC4DC"
+
+theme[available_start]="#2C4A61"
+theme[available_mid]="#6FA8CC"
+theme[available_end]="#9CC4DC"
+
+theme[used_start]="#2C4A61"
+theme[used_mid]="#6FA8CC"
+theme[used_end]="#A6455C"
+
+# Network graphs — download cyan ramp, upload quieter
+theme[download_start]="#2C4A61"
+theme[download_mid]="#6FA8CC"
+theme[download_end]="#9CC4DC"
+
+theme[upload_start]="#1B2A3A"
+theme[upload_mid]="#2C4A61"
+theme[upload_end]="#6FA8CC"
+
+# Process box usage gradient — threads/mem/cpu
+theme[process_start]="#2C4A61"
+theme[process_mid]="#6FA8CC"
+theme[process_end]="#C4705C"
+
+# Graph gradient ramp — void to bright foreground
+theme[gradient_color_0]="#080D13"
+theme[gradient_color_1]="#0D141C"
+theme[gradient_color_2]="#1B2A3A"
+theme[gradient_color_3]="#2C4A61"
+theme[gradient_color_4]="#6FA8CC"
+theme[gradient_color_5]="#5F7F93"
+theme[gradient_color_6]="#9CC4DC"
+theme[gradient_color_7]="#B5D2E3"

@@ -1,0 +1,164 @@
+# Oblivion Signal — shell surface overrides
+# Maps the design language from docs/oblivion-signal-component-language.md
+# to concrete shell.toml tokens. Colors derive from colors.toml; this file
+# overrides geometry, density, borders, and state colors.
+
+[bar]
+background       = "#080D13"
+background-alpha = 0.97
+text             = "#B5D2E3"
+# Alerts, recording indicators, urgent workspace
+active           = "#A6455C"
+scale-with-font  = true
+size-horizontal  = 26
+size-vertical    = 28
+
+[hyprland]
+active-border            = "#6FA8CC #9CC4DC 45deg"
+active-border-foreground = "#9CC4DC #B5D2E3 45deg"
+
+[controls]
+# Hard-edged controls, no pill shapes. Thin borders.
+normal-color        = "#B5D2E3"
+normal-fill-alpha   = 0.04
+normal-border       = "#2C4A61"
+normal-border-width = 1
+normal-border-alpha = 0.6
+
+# Hover-cursor: subtle brightening
+hover-cursor-color        = "#B5D2E3"
+hover-cursor-fill-alpha   = 0.06
+hover-cursor-border       = "#6FA8CC"
+hover-cursor-border-width = 1
+hover-cursor-border-alpha = 0.4
+
+# Focus: cyan — the active datum
+focus-color        = "#6FA8CC"
+focus-fill-alpha   = 0.06
+focus-border       = "#6FA8CC"
+focus-border-width = 1
+focus-border-alpha = 0.5
+
+# Selected: persistent chosen state — slightly brighter cyan fill
+# Priority edge: selected controls get a 2px left accent bar, not a
+# uniform outline — the film marks the active datum with a heavier edge.
+selected-color        = "#9CC4DC"
+selected-fill-alpha   = 0.12
+selected-border       = "#6FA8CC"
+selected-border-width = "0 0 0 2"
+selected-border-alpha = 0.5
+
+# Momentary fills
+pressed-fill-alpha   = 0.18
+selection-fill-alpha = 0.30
+
+[spacing]
+# Tight, dense instrumentation feel
+scale = 0.92
+scale-with-font = true
+panel-padding  = 16
+popup-padding  = 12
+row-padding-x  = 10
+control-gap    = 6
+control-height = 26
+popup-row-height = 26
+
+[font]
+base-size = 12
+
+[popups]
+# Flat, opaque surfaces with thin structural border
+background       = "#0D141C"
+background-alpha = 1.0
+text             = "#B5D2E3"
+border           = "#2C4A61"
+border-alpha     = 0.6
+border-width     = "1 1 1 2"
+
+[tooltip]
+background       = "#0D141C"
+background-alpha = 0.97
+text             = "#B5D2E3"
+border           = "#6FA8CC"
+border-alpha     = 0.4
+
+[notifications]
+# Mission-message: opaque, thin active-border, cyan countdown
+background       = "#0D141C"
+background-alpha = 1.0
+text             = "#B5D2E3"
+border           = "#6FA8CC #9CC4DC 45deg"
+border-alpha     = 1.0
+border-width     = "1 1 1 3"
+countdown        = "#6FA8CC"
+
+[launcher]
+# Acquisition pane: near-opaque card, cyan selection
+background                = "#0D141C"
+background-alpha          = 0.95
+text                      = "#B5D2E3"
+border                    = "#6FA8CC #9CC4DC 45deg"
+border-alpha              = 1.0
+scrim                     = "#080D13"
+scrim-alpha               = 0.5
+selected-background       = "#6FA8CC"
+selected-background-alpha = 0.08
+selected-text             = "#9CC4DC"
+selected-border           = "#6FA8CC"
+selected-border-alpha     = 0.5
+selected-border-width     = "0 0 0 3"
+
+[menu]
+background                = "#0D141C"
+background-alpha          = 1.0
+text                      = "#B5D2E3"
+border                    = "#6FA8CC #9CC4DC 45deg"
+border-alpha              = 1.0
+scrim                     = "#080D13"
+scrim-alpha               = 0.5
+selected-background       = "#6FA8CC"
+selected-background-alpha = 0.08
+selected-text             = "#9CC4DC"
+selected-border           = "#6FA8CC"
+selected-border-alpha     = 0.5
+selected-border-width     = "0 0 0 3"
+
+[polkit]
+# Auth card: coral errors, cyan accent
+background       = "#0D141C"
+background-alpha = 1.0
+text             = "#B5D2E3"
+text-error       = "#A6455C"
+border           = "#6FA8CC #9CC4DC 45deg"
+border-error     = "#A6455C"
+border-alpha     = 1.0
+scrim            = "#080D13"
+scrim-alpha      = 0.5
+accent           = "#6FA8CC"
+
+[lock]
+# Identity instrument: translucent field, cyan active border, coral error
+background       = "#0D141C"
+background-alpha = 0.8
+text             = "#B5D2E3"
+placeholder      = "#5F7F93"
+text-error       = "#A6455C"
+border           = "#2C4A61"
+border-active    = "#6FA8CC"
+border-error     = "#A6455C"
+border-alpha     = 1.0
+# Typing/authenticating grows a 3px left priority edge — the field's
+# state change reads as a mechanical shift, not a glow.
+border-active-width-left = 3
+border-error-width-left  = 3
+selection        = "#6FA8CC"
+selection-alpha  = 0.45
+
+[image-picker]
+scrim                   = "#080D13"
+scrim-alpha             = 0.5
+text                    = "#B5D2E3"
+selected-border         = "#6FA8CC"
+selected-border-alpha   = 1.0
+unselected-border       = "#2C4A61"
+unselected-border-alpha = 0.4

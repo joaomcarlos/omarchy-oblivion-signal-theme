@@ -1,0 +1,67 @@
+/* Oblivion Signal — libadwaita overrides
+   Steel-ice blue on blue-slate, dusty salmon-crimson exceptions.
+   Written by ~/.config/omarchy/hooks/theme-set.d/oblivion-signal-font;
+   removed when switching to another theme. */
+
+@define-color accent_color #6FA8CC;
+@define-color accent_bg_color #6FA8CC;
+@define-color accent_fg_color #0D141C;
+
+@define-color window_bg_color #0D141C;
+@define-color window_fg_color #B5D2E3;
+
+@define-color view_bg_color #0D141C;
+@define-color view_fg_color #B5D2E3;
+
+@define-color headerbar_bg_color #080D13;
+@define-color headerbar_fg_color #B5D2E3;
+@define-color headerbar_border_color #2C4A61;
+@define-color headerbar_backdrop_color #080D13;
+@define-color headerbar_shade_color rgba(44, 74, 97, 0.4);
+
+@define-color sidebar_bg_color #080D13;
+@define-color sidebar_fg_color #B5D2E3;
+@define-color sidebar_border_color #2C4A61;
+@define-color sidebar_backdrop_color #080D13;
+@define-color secondary_sidebar_bg_color #080D13;
+@define-color secondary_sidebar_fg_color #B5D2E3;
+@define-color secondary_sidebar_border_color #2C4A61;
+@define-color secondary_sidebar_backdrop_color #080D13;
+
+@define-color card_bg_color #1B2A3A;
+@define-color card_fg_color #B5D2E3;
+
+@define-color popover_bg_color #0D141C;
+@define-color popover_fg_color #B5D2E3;
+
+@define-color dialog_bg_color #0D141C;
+@define-color dialog_fg_color #B5D2E3;
+
+@define-color thumbnail_bg_color #1B2A3A;
+@define-color thumbnail_fg_color #B5D2E3;
+
+@define-color destructive_color #A6455C;
+@define-color destructive_bg_color #A6455C;
+@define-color destructive_fg_color #E2EFF8;
+
+@define-color error_color #A6455C;
+@define-color error_bg_color #A6455C;
+@define-color error_fg_color #E2EFF8;
+
+@define-color warning_color #D8D9A8;
+@define-color warning_bg_color #8A8B62;
+@define-color warning_fg_color #0D141C;
+
+@define-color success_color #87AEA2;
+@define-color success_bg_color #87AEA2;
+@define-color success_fg_color #0D141C;
+
+@define-color shade_color rgba(5, 8, 12, 0.6);
+@define-color scrollbar_outline_color #2C4A61;
+
+/* Blue ramp — libadwaita tints links, selections, focus rings from these */
+@define-color blue_1 #A3CFE3;
+@define-color blue_2 #8FB8D4;
+@define-color blue_3 #6FA8CC;
+@define-color blue_4 #5689AC;
+@define-color blue_5 #3E6A8C;

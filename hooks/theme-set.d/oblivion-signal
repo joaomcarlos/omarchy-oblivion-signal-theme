@@ -1,0 +1,81 @@
+#!/bin/bash
+# Switch user-level surfaces with the theme: Oblivion Signal uses OCR-A
+# (the film's telemetry voice) and a libadwaita gtk.css for Nautilus;
+# any other theme restores whatever was in place before.
+
+theme="${1:-}"
+state_dir="$HOME/.local/state/omarchy"
+state_file="$state_dir/oblivion-signal-previous-font"
+cursor_file="$state_dir/oblivion-signal-previous-cursor"
+gtk_backup="$state_dir/oblivion-signal-previous-gtk-css"
+foot_ini="$HOME/.config/foot/foot.ini"
+gtk_css="$HOME/.config/gtk-4.0/gtk.css"
+theme_gtk="$HOME/.config/omarchy/themes/oblivion-signal/gtk.css"
+theme_gtk3="$HOME/.config/omarchy/themes/oblivion-signal/gtk3.css"
+gtk3_css="$HOME/.config/gtk-3.0/gtk.css"
+gtk3_backup="$state_dir/oblivion-signal-previous-gtk3-css"
+theme_icons="$HOME/.config/omarchy/themes/oblivion-signal/icons/oblivion-signal"
+user_icons="$HOME/.local/share/icons/oblivion-signal"
+
+apply_font() {
+  local name="$1" size=""
+  # omarchy-font-set rewrites foot's font line with a hardcoded :size=9 —
+  # capture the configured size first and put it back after.
+  if [[ -f $foot_ini ]]; then
+    size=$(sed -n 's/^font=.*size=\([0-9.]*\).*/\1/p' "$foot_ini" | head -1)
+  fi
+  omarchy-font-set "$name"
+  if [[ -n $size && -f $foot_ini ]]; then
+    sed -i "s/^font=$name:size=9/font=$name:size=$size/" "$foot_ini"
+  fi
+}
+
+if [[ $theme == "oblivion-signal" ]]; then
+  previous=$(fc-match -f "%{family[0]}" monospace)
+  if [[ -n $previous && $previous != "OCRA" ]]; then
+    echo "$previous" >"$state_file"
+  fi
+  apply_font OCRA
+  if [[ -f $theme_gtk ]]; then
+    # Preserve a pre-existing user gtk.css once, then install the theme's.
+    if [[ -f $gtk_css && ! -f $gtk_backup ]]; then
+      cp "$gtk_css" "$gtk_backup"
+    fi
+    cp "$theme_gtk" "$gtk_css"
+  fi
+  if [[ -f $theme_gtk3 ]]; then
+    mkdir -p "$(dirname "$gtk3_css")"
+    if [[ -f $gtk3_css && ! -f $gtk3_backup ]]; then
+      cp "$gtk3_css" "$gtk3_backup"
+    fi
+    cp "$theme_gtk3" "$gtk3_css"
+  fi
+  # Install the custom icon theme if it isn't already linked in.
+  if [[ -d $theme_icons && ! -e $user_icons ]]; then
+    ln -sfn "$theme_icons" "$user_icons"
+    gtk-update-icon-cache -f -q "$user_icons" 2>/dev/null || true
+  fi
+  # Cursor: Adwaita's white monoline pointer fits the instrument look.
+  prev_cursor=$(gsettings get org.gnome.desktop.interface cursor-theme | tr -d "'")
+  if [[ -n $prev_cursor && $prev_cursor != "Adwaita" ]]; then
+    echo "$prev_cursor" >"$cursor_file"
+  fi
+  gsettings set org.gnome.desktop.interface cursor-theme "Adwaita"
+elif [[ -f $state_file ]]; then
+  apply_font "$(cat "$state_file")"
+  rm -f "$state_file"
+  if [[ -f $gtk_backup ]]; then
+    mv "$gtk_backup" "$gtk_css"
+  elif [[ -f $gtk_css ]]; then
+    rm -f "$gtk_css"
+  fi
+  if [[ -f $gtk3_backup ]]; then
+    mv "$gtk3_backup" "$gtk3_css"
+  elif [[ -f $gtk3_css ]]; then
+    rm -f "$gtk3_css"
+  fi
+  if [[ -f $cursor_file ]]; then
+    gsettings set org.gnome.desktop.interface cursor-theme "$(cat "$cursor_file")"
+    rm -f "$cursor_file"
+  fi
+fi
