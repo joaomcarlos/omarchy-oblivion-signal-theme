@@ -23,16 +23,20 @@ PROFILE = sys.argv[2] if len(sys.argv) > 2 else "future"
 OUT = os.path.expanduser(
     "~/Projects/personal/oblivion-theme/icons/oblivion-signal-cursors/cursors")
 
-FILL = (0xE2, 0xEF, 0xF8)   # brightest readout — replaces white fills
+FILL = (0xA3, 0xCF, 0xE3)   # bright readout — replaces white fills
 STEEL = (0x6F, 0xA8, 0xCC)  # steel-ice accent — replaces Future's amber
+CRIMSON = (0xA6, 0x45, 0x5C)  # dusty crimson — replaces red (not-allowed)
 EDGE = (0x0D, 0x14, 0x1C)   # void-dark edge — replaces the black outline
 
 
 def tint_future(px):
-    """Future cursors: white->bright readout, amber->steel, dark->void."""
+    """Future cursors: white->bright readout, amber->steel, red->crimson,
+    dark->void."""
     r, g, b, a = px
     if a == 0:
         return px
+    if r > 150 and g < 100 and b < 100:      # red — semantic, keep meaning
+        return (*CRIMSON, a)
     if r > b + 60 and r > 120:              # amber accent
         return (*STEEL, a)
     lum = 0.3 * r + 0.55 * g + 0.15 * b
