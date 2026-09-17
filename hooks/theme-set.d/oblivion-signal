@@ -60,7 +60,7 @@ if [[ $theme == "oblivion-signal" ]]; then
   if [[ -d $theme_cursors && ! -e $user_cursors ]]; then
     ln -sfn "$theme_cursors" "$user_cursors"
   fi
-  # Cursor: recolored Bibata — steel-ice fill, void-dark edge.
+  # Cursor: recolored Future — bright readout body, steel-ice accents.
   prev_cursor=$(gsettings get org.gnome.desktop.interface cursor-theme | tr -d "'")
   if [[ -n $prev_cursor && $prev_cursor != "oblivion-signal-cursors" ]]; then
     echo "$prev_cursor" >"$cursor_file"
