@@ -153,7 +153,46 @@ RailModule {
     pal: root.pal
     vitals: root.vitals
     label: "NET"
-    value: root.rate(vitals.tx) + "↑ " + root.rate(vitals.rx) + "↓"
+    rightContent: netRail
+
+    Component {
+      id: netRail
+      Item {
+        width: 150
+        height: 16
+
+        Text {
+          anchors {
+            right: arrows.left
+            rightMargin: 5
+            verticalCenter: parent.verticalCenter
+          }
+          text: root.rate(vitals.tx)
+          color: pal.readout
+          font.family: "OCRA"
+          font.pixelSize: 11
+        }
+        Text {
+          id: arrows
+          anchors.centerIn: parent
+          text: "↑↓"
+          color: pal.accent
+          font.family: "OCRA"
+          font.pixelSize: 11
+        }
+        Text {
+          anchors {
+            left: arrows.right
+            leftMargin: 5
+            verticalCenter: parent.verticalCenter
+          }
+          text: root.rate(vitals.rx)
+          color: pal.readout
+          font.family: "OCRA"
+          font.pixelSize: 11
+        }
+      }
+    }
   }
 
   VitalRow {
