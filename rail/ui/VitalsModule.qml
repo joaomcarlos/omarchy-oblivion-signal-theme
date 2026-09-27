@@ -66,8 +66,39 @@ RailModule {
     pal: root.pal
     vitals: root.vitals
     label: "CPU"
-    value: vitals.temp >= 0 ? vitals.temp + "°C · " + vitals.cpu + "%" : vitals.cpu + "%"
-    alarming: vitals.cpu > 90 || vitals.temp > 85
+    rightContent: cpuRail
+
+    Component {
+      id: cpuRail
+      Row {
+        spacing: 7
+
+        Row {
+          spacing: 1
+          anchors.verticalCenter: parent.verticalCenter
+
+          Repeater {
+            model: 10
+            Rectangle {
+              required property int index
+              readonly property bool on: index < Math.round(vitals.cpu / 10)
+              width: 3
+              height: 8
+              color: on ? (vitals.cpu > 90 && index >= 8 ? pal.coral : pal.accent)
+                        : Qt.alpha(pal.structural, 0.4)
+            }
+          }
+        }
+
+        Text {
+          text: vitals.temp >= 0 ? vitals.temp + "°C · " + vitals.cpu + "%" : vitals.cpu + "%"
+          color: vitals.cpu > 90 || vitals.temp > 85 ? pal.coralBright : pal.readout
+          font.family: "OCRA"
+          font.pixelSize: 11
+          anchors.verticalCenter: parent.verticalCenter
+        }
+      }
+    }
 
     Component {
       id: tetHeader
