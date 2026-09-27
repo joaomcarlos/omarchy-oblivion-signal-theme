@@ -32,7 +32,7 @@ ShellRoot {
         bottom: 16
       }
       implicitWidth: 356
-      color: "#ff0000"
+      color: Qt.alpha(pal.bg, 0.88)
       exclusionMode: ExclusionMode.Ignore
 
       WlrLayershell.namespace: "oblivion-rail"
