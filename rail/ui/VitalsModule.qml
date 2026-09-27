@@ -10,8 +10,7 @@ RailModule {
   headerPrefix: tetHeader
 
   function rate(v) {
-    if (v < 1024) return v + " b/s"
-    if (v < 1048576) return Math.round(v / 1024) + " kb/s"
+    if (v < 1048576) return (v / 1024).toFixed(1) + " kb/s"
     if (v < 1073741824) return (v / 1048576).toFixed(1) + " mb/s"
     return (v / 1073741824).toFixed(2) + " gb/s"
   }
