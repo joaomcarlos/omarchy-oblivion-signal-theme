@@ -32,7 +32,7 @@ ShellRoot {
         bottom: 16
       }
       implicitWidth: 356
-      color: "transparent"
+      color: "#ff0000"
       exclusionMode: ExclusionMode.Ignore
 
       WlrLayershell.namespace: "oblivion-rail"
