@@ -60,10 +60,10 @@ disk_pct() {
 }
 
 uptime_short() {
-  # DSEG7 has no 'm' glyph — under a day, render clock-style HH:MM.
-  awk '{ s = int($1); d = int(s / 86400); r = s % 86400; h = int(r / 3600); m = int(r % 3600 / 60);
+  # DSEG7 has no 'm' glyph — under a day, render clock-style HH:MM:SS.
+  awk '{ s = int($1); d = int(s / 86400); r = s % 86400; h = int(r / 3600); m = int(r % 3600 / 60); sec = r % 60;
     if (d > 0) printf "%dd%02dh", d, h;
-    else printf "%d:%02d", h, m }' /proc/uptime
+    else printf "%d:%02d:%02d", h, m, sec }' /proc/uptime
 }
 
 while :; do
