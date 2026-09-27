@@ -10,10 +10,10 @@ RailModule {
   headerPrefix: tetHeader
 
   function rate(v) {
-    if (v < 1024) return v + "B/s"
-    if (v < 1048576) return Math.round(v / 1024) + "KB/s"
-    if (v < 1073741824) return (v / 1048576).toFixed(1) + "MB/s"
-    return (v / 1073741824).toFixed(2) + "GB/s"
+    if (v < 1024) return v + " B/s"
+    if (v < 1048576) return Math.round(v / 1024) + " KB/s"
+    if (v < 1073741824) return (v / 1048576).toFixed(1) + " MB/s"
+    return (v / 1073741824).toFixed(2) + " GB/s"
   }
 
   component VitalRow: Item {

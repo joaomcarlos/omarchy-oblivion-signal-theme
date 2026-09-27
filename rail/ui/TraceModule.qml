@@ -56,8 +56,8 @@ RailModule {
     Text {
       anchors.right: parent.right
       text: (vitals.rx + vitals.tx < 1048576
-             ? Math.round((vitals.rx + vitals.tx) / 1024) + "KB/S"
-             : ((vitals.rx + vitals.tx) / 1048576).toFixed(1) + "MB/S")
+             ? Math.round((vitals.rx + vitals.tx) / 1024) + " KB/S"
+             : ((vitals.rx + vitals.tx) / 1048576).toFixed(1) + " MB/S")
       color: pal.mutedData
       font.family: "OCRA"
       font.pixelSize: 9
