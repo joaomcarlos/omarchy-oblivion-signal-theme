@@ -48,6 +48,9 @@ ShellRoot {
           left: parent.left
           right: parent.right
           top: parent.top
+          leftMargin: 14
+          rightMargin: 14
+          topMargin: 14
         }
         spacing: 24
 
