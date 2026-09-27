@@ -19,8 +19,13 @@ RailModule {
     var h = heights.slice()
     var bias = vitals.cpu / 100
     for (var i = 0; i < h.length; i++) {
-      var drift = (Math.random() - 0.45) * 6 + bias * 4
-      h[i] = Math.max(3, Math.min(26, Math.round(h[i] + drift)))
+      // Mean-reverting walk toward a per-column target that follows CPU
+      // load — jitter stays alive, bars sit mid-band instead of pinning
+      // at the cap.
+      var shape = 0.35 + 0.65 * (((i * 7) % 13) / 12)
+      var target = 3 + bias * 18 * shape
+      h[i] = Math.max(3, Math.min(26, Math.round(
+        h[i] + (target - h[i]) * 0.18 + (Math.random() - 0.5) * 7)))
     }
     heights = h
   }
