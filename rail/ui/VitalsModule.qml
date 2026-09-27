@@ -218,7 +218,7 @@ RailModule {
     pal: root.pal
     vitals: root.vitals
     label: "DISK"
-    value: "/ " + vitals.disk + "%"
+    value: vitals.disk + "%"
     alarming: vitals.disk > 90
   }
 
