@@ -59,7 +59,7 @@ ShellRoot {
           pal: shell.pal
           vitals: shell.vitals
         }
-        GridModule {
+        TraceModule {
           pal: shell.pal
           vitals: shell.vitals
         }

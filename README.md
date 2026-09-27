@@ -51,10 +51,17 @@ When Oblivion Signal is applied, the hook:
   `~/.config/gtk-3.0/`, backing up any files already there;
 - links `icons/oblivion-signal` into `~/.local/share/icons/` and rebuilds
   the icon cache;
-- sets the Adwaita cursor theme, which suits the instrument look.
+- sets the Adwaita cursor theme, which suits the instrument look;
+- links the `oblivion.workspaces` shell plugin into
+  `~/.config/omarchy/plugins/` and swaps it into the bar slot of the stock
+  workspaces widget (zero-padded readouts, underline on the focused cell,
+  coral flicker on urgent workspaces);
+- adds a marked `quickshell -p` autostart block to
+  `~/.config/hypr/autostart.lua` and launches the telemetry rail (below).
 
 On switching to any other theme it restores the previous font, GTK CSS
-files and cursor theme.
+files and cursor theme, swaps the stock workspaces widget back, removes
+the plugin link, stops the rail, and removes its autostart block.
 
 ### Icon theme
 
@@ -75,6 +82,47 @@ so install
 (`pacman -S papirus-icon-theme`, or extract a release tarball into
 `~/.local/share/icons/`) as the fallback layer. Folders there are recolored
 to nordic blues with `papirus-folders -C nordic -t Papirus-Dark`.
+
+### Telemetry rail (optional)
+
+`rail/` is a standalone [Quickshell](https://quickshell.ca) instance that
+draws the right-hand instrument rail from the README preview — a stepped
+signal trace, live system vitals, and a radar grid — inside the workspace
+`gaps_out` reservation. It reads the active theme's `colors.toml`, so it
+follows theme swaps; vitals are real (`rail/poll.sh`), the trace and radar
+are decorative.
+
+The hook installs an autostart block and starts the rail when the theme is
+applied. To run it manually:
+
+```bash
+quickshell -p ~/.config/omarchy/themes/oblivion-signal/rail
+```
+
+For autostart without the hook, add to `~/.config/hypr/autostart.lua`:
+
+```lua
+o.exec_on_start("quickshell -p " .. (os.getenv("HOME") or "") .. "/.config/omarchy/themes/oblivion-signal/rail")
+```
+
+The rail assumes ~400px of right `gaps_out` (see
+`~/.config/hypr/monitors.lua`); on other workspaces or screens without the
+reservation it draws over windows at the right edge.
+
+### Bar workspaces plugin (optional)
+
+`plugins/oblivion.workspaces/` is a clone of the built-in `omarchy.workspaces`
+bar widget (`omarchy.clonedFrom`) drawn in the theme's visual language:
+zero-padded `01`–`10` readouts, a 1px rule under the focused cell, coral
+flicker on urgent workspaces. The hook links it into
+`~/.config/omarchy/plugins/` and swaps it into the bar slot of the stock
+widget; switching themes restores the stock widget. Manual install:
+
+```bash
+ln -sfn ~/.config/omarchy/themes/oblivion-signal/plugins/oblivion.workspaces ~/.config/omarchy/plugins/oblivion.workspaces
+omarchy-shell shell rescanPlugins
+omarchy plugin enable oblivion.workspaces
+```
 
 ### Boot surfaces (optional, need sudo)
 
@@ -98,6 +146,9 @@ omarchy plymouth set '#0D141C' '#B5D2E3' ~/.config/omarchy/themes/oblivion-signa
 | `hyprland.lua` | Hyprland treatment — 1px cyan active border, teal inactive, no shadows, mechanical animations (stripped by `omarchy theme install`; see above) |
 | `icons.theme` | Icon theme name (`oblivion-signal`) |
 | `icons/oblivion-signal/` | Custom monoline icon set, inherits Papirus-Dark |
+| `rail/` | Standalone Quickshell telemetry rail — signal trace, vitals, radar grid (see above) |
+| `plugins/oblivion.workspaces/` | Bar-widget clone of `omarchy.workspaces` — padded readouts, active underline |
+| `hooks/theme-set.d/oblivion-signal` | Automation hook — font, GTK CSS, icons, cursor, plugin swap, rail lifecycle |
 | `gtk.css` / `gtk3.css` | libadwaita / GTK3 overrides, installed by the theme-set hook |
 | `btop.theme` | btop color scheme |
 | `chromium.theme` | Chromium browser tint |

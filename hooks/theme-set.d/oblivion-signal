@@ -58,7 +58,7 @@ PY
 # launches it at login; switching themes removes the block and stops it.
 ensure_rail_autostart() {
   [[ -f $autostart_lua && -d $rail_dir ]] || return
-  grep -qF "$rail_begin" "$autostart_lua" && return
+  grep -qF -e "$rail_begin" "$autostart_lua" && return
   cat >>"$autostart_lua" <<EOF
 
 $rail_begin
