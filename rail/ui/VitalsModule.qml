@@ -72,6 +72,14 @@ RailModule {
       Row {
         spacing: 7
 
+        Text {
+          text: vitals.temp >= 0 ? vitals.temp + "°C · " + vitals.cpu + "%" : vitals.cpu + "%"
+          color: vitals.cpu > 90 || vitals.temp > 85 ? pal.coralBright : pal.readout
+          font.family: "OCRA"
+          font.pixelSize: 11
+          anchors.verticalCenter: parent.verticalCenter
+        }
+
         Row {
           spacing: 1
           anchors.verticalCenter: parent.verticalCenter
@@ -87,14 +95,6 @@ RailModule {
                         : Qt.alpha(pal.structural, 0.4)
             }
           }
-        }
-
-        Text {
-          text: vitals.temp >= 0 ? vitals.temp + "°C · " + vitals.cpu + "%" : vitals.cpu + "%"
-          color: vitals.cpu > 90 || vitals.temp > 85 ? pal.coralBright : pal.readout
-          font.family: "OCRA"
-          font.pixelSize: 11
-          anchors.verticalCenter: parent.verticalCenter
         }
       }
     }
@@ -131,17 +131,30 @@ RailModule {
     Component {
       id: memRail
       Row {
-        spacing: 1
+        spacing: 7
 
-        Repeater {
-          model: 10
-          Rectangle {
-            required property int index
-            readonly property bool on: index < Math.round(vitals.mem / 10)
-            width: 3
-            height: 8
-            color: on ? (vitals.mem > 90 && index >= 8 ? pal.coral : pal.accent)
-                      : Qt.alpha(pal.structural, 0.4)
+        Text {
+          text: vitals.mem + "%"
+          color: vitals.mem > 90 ? pal.coralBright : pal.readout
+          font.family: "OCRA"
+          font.pixelSize: 11
+          anchors.verticalCenter: parent.verticalCenter
+        }
+
+        Row {
+          spacing: 1
+          anchors.verticalCenter: parent.verticalCenter
+
+          Repeater {
+            model: 10
+            Rectangle {
+              required property int index
+              readonly property bool on: index < Math.round(vitals.mem / 10)
+              width: 3
+              height: 8
+              color: on ? (vitals.mem > 90 && index >= 8 ? pal.coral : pal.accent)
+                        : Qt.alpha(pal.structural, 0.4)
+            }
           }
         }
       }
