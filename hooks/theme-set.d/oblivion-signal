@@ -18,6 +18,35 @@ theme_icons="$HOME/.config/omarchy/themes/oblivion-signal/icons/oblivion-signal"
 theme_cursors="$HOME/.config/omarchy/themes/oblivion-signal/icons/oblivion-signal-cursors"
 user_icons="$HOME/.local/share/icons/oblivion-signal"
 user_cursors="$HOME/.local/share/icons/oblivion-signal-cursors"
+theme_ws_plugin="$HOME/.config/omarchy/themes/oblivion-signal/plugins/oblivion.workspaces"
+user_ws_plugin="$HOME/.config/omarchy/plugins/oblivion.workspaces"
+shell_json="$HOME/.config/omarchy/shell.json"
+
+# Swap the bar's workspaces slot between the stock widget and the theme's
+# plugin clone (zero-padded readouts, accent rule, urgent flicker).
+swap_workspaces_widget() {
+  python3 - "$shell_json" "$1" "$2" <<'PY'
+import json, sys
+path, src, dst = sys.argv[1:4]
+try:
+    cfg = json.load(open(path))
+except Exception:
+    sys.exit(0)
+layout = cfg.get("bar", {}).get("layout", {})
+changed = False
+for entries in layout.values():
+    for i, e in enumerate(entries):
+        eid = e.get("id") if isinstance(e, dict) else e
+        if eid == src:
+            if isinstance(e, dict):
+                e["id"] = dst
+            else:
+                entries[i] = dst
+            changed = True
+if changed:
+    json.dump(cfg, open(path, "w"), indent=2)
+PY
+}
 
 apply_font() {
   local name="$1" size=""
@@ -66,6 +95,13 @@ if [[ $theme == "oblivion-signal" ]]; then
     echo "$prev_cursor" >"$cursor_file"
   fi
   gsettings set org.gnome.desktop.interface cursor-theme "oblivion-signal-cursors"
+  # Bar plugin: clone of omarchy.workspaces in the theme's visual language.
+  if [[ -d $theme_ws_plugin && ! -e $user_ws_plugin ]]; then
+    ln -sfn "$theme_ws_plugin" "$user_ws_plugin"
+  fi
+  swap_workspaces_widget omarchy.workspaces oblivion.workspaces
+  omarchy-shell -q shell rescanPlugins || true
+  omarchy-shell -q shell reloadConfig || true
 elif [[ -f $state_file ]]; then
   apply_font "$(cat "$state_file")"
   rm -f "$state_file"
@@ -83,4 +119,10 @@ elif [[ -f $state_file ]]; then
     gsettings set org.gnome.desktop.interface cursor-theme "$(cat "$cursor_file")"
     rm -f "$cursor_file"
   fi
+  swap_workspaces_widget oblivion.workspaces omarchy.workspaces
+  if [[ -L $user_ws_plugin ]]; then
+    rm -f "$user_ws_plugin"
+  fi
+  omarchy-shell -q shell rescanPlugins || true
+  omarchy-shell -q shell reloadConfig || true
 fi

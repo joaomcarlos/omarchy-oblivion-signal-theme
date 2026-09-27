@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "oblivion.workspaces",
+  "name": "Oblivion Workspaces",
+  "version": "1.0.0",
+  "author": "Oblivion Signal",
+  "description": "Zero-padded workspace readouts — the active cell gets a 1px rule, urgent cells flicker coral",
+  "license": "MIT",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Workspaces.qml"
+  },
+  "barWidget": {
+    "displayName": "Workspaces",
+    "description": "Workspace number indicators, Oblivion Signal instrument style",
+    "category": "Compositor",
+    "allowMultiple": false
+  },
+  "omarchy": {
+    "clonedFrom": "omarchy.workspaces"
+  }
+}
