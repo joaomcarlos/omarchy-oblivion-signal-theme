@@ -91,7 +91,8 @@ signal trace, live system vitals, and a rolling CPU/MEM/NET load
 trace — inside the workspace
 `gaps_out` reservation. It reads the active theme's `colors.toml`, so it
 follows theme swaps; vitals and the load trace are real (`rail/poll.sh`),
-the signal trace is decorative.
+and the signal trace is a real audio FFT when `cava` is installed
+(`rail/cava.conf`), falling back to a CPU-biased walk without it.
 
 The hook installs an autostart block and starts the rail when the theme is
 applied. To run it manually:

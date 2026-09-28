@@ -1,8 +1,10 @@
 import QtQuick
+import Quickshell
+import Quickshell.Io
 
-// SIGNAL // CH 03 — a stepped FFT-style trace: blocky marks above and below a
-// baseline, one coral anomaly column on channel 07, and a mechanical scan
-// sweep. Heights random-walk with a bias from real CPU load.
+// SIGNAL // CH 03 — real FFT from cava (PipeWire, 14 bars): blocky marks
+// above and below a baseline, one coral anomaly column on channel 07, and a
+// mechanical scan sweep. Falls back to a CPU-biased random walk without cava.
 RailModule {
   id: root
   label: "SIGNAL // CH 03"
@@ -14,6 +16,8 @@ RailModule {
   // heights[0..13] bars above the baseline, heights[14..27] below
   property var heights: []
   property bool flickerOn: true
+  // true while cava emits frames — the random walk only runs as fallback
+  property bool live: false
 
   function tick() {
     var h = heights.slice()
@@ -63,10 +67,32 @@ RailModule {
     width: parent.width
     height: 64
 
+    Process {
+      id: cava
+      running: root.visible
+      command: ["cava", "-p",
+        Qt.resolvedUrl("../cava.conf").toString().replace("file://", "")]
+      stdout: SplitParser {
+        onRead: function(line) {
+          var parts = line.split(";")
+          var h = []
+          for (var i = 0; i < root.columns; i++) {
+            var v = parseInt(parts[i] || "0")
+            h.push(Math.max(2, Math.min(26, Math.round(v * 26 / 65535 * 1.4))))
+          }
+          for (i = 0; i < root.columns; i++)
+            h.push(Math.max(1, Math.round(h[i] * 0.55)))
+          root.heights = h
+          root.live = true
+        }
+      }
+      onExited: root.live = false
+    }
+
     Timer {
       interval: 220
       repeat: true
-      running: root.visible
+      running: root.visible && !root.live
       onTriggered: root.tick()
     }
 
