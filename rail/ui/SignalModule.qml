@@ -78,7 +78,8 @@ RailModule {
           var h = []
           for (var i = 0; i < root.columns; i++) {
             var v = parseInt(parts[i] || "0")
-            h.push(Math.max(2, Math.min(26, Math.round(v * 26 / 65535 * 1.4))))
+            // cava ascii raw tops out around 1000 with autosens
+            h.push(Math.max(2, Math.min(26, Math.round(v / 40))))
           }
           for (i = 0; i < root.columns; i++)
             h.push(Math.max(1, Math.round(h[i] * 0.55)))
