@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// SIGNAL // CH 03 — real FFT from cava (PipeWire, 14 bars): blocky marks
+// SIGNAL // CH 03 — real FFT from cava (PipeWire, 28 bars): blocky marks
 // above and below a baseline, one coral anomaly column on channel 07, and a
 // mechanical scan sweep. Falls back to a CPU-biased random walk without cava.
 RailModule {
@@ -11,7 +11,7 @@ RailModule {
   state: "ACQUIRING"
   stateDot: pal.accent
 
-  readonly property int columns: 14
+  readonly property int columns: 28
   readonly property int anomalyColumn: 7
   // heights[0..13] bars above the baseline, heights[14..27] below
   property var heights: []
