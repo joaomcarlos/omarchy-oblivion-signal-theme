@@ -23,6 +23,7 @@ SESSIONS_DB = HOME + "/.local/share/devin/cli/sessions.db"
 CODEX_SESSIONS = HOME + "/.codex/sessions"
 MAX_AGENTS = 5
 LAST_LINES = 6
+MAX_IDLE = 3 * 86400
 TICK = 1.5
 
 
@@ -235,6 +236,8 @@ def codex_title(path, uuid):
 
 while True:
     found = devin_sessions() + codex_sessions()
+    now = time.time()
+    found = [f for f in found if now - f[0] < MAX_IDLE]
     found.sort(reverse=True)
     agents = []
     for _, kind, ident in found[:MAX_AGENTS]:
