@@ -86,13 +86,20 @@ to nordic blues with `papirus-folders -C nordic -t Papirus-Dark`.
 ### Telemetry rail (optional)
 
 `rail/` is a standalone [Quickshell](https://quickshell.ca) instance that
-draws the right-hand instrument rail — a stepped
-signal trace, live system vitals, and a rolling CPU/MEM/NET load
-trace — inside the workspace
-`gaps_out` reservation. It reads the active theme's `colors.toml`, so it
-follows theme swaps; vitals and the load trace are real (`rail/poll.sh`),
-and the signal trace is a real audio FFT when `cava` is installed
-(`rail/cava.conf`), falling back to a CPU-biased walk without it.
+draws the right-hand instrument rail inside the workspace `gaps_out`
+reservation. It reads the active theme's `colors.toml`, so it follows theme
+swaps. Four modules, top to bottom:
+
+- **SIGNAL // CH 03** — a real audio FFT when `cava` is installed
+  (`rail/cava.conf`, 48 bars off the PipeWire monitor), falling back to a
+  CPU-biased walk without it.
+- **TET // SYSTEM // VITALS** — real readings from `rail/poll.sh`: GPU
+  (temp + util) and GPU - VRAM, CPU (temp + util) and MEM, NET throughput,
+  DISK read/write rates plus usage percent, and UPTIME. GPU rows hide when
+  `nvidia-smi` reports nothing.
+- **TRACE // LOAD** — a rolling two-minute CPU/MEM trace with NET ticks.
+- **AGENTS // LIVE** — the five most-recently-active running Devin and
+  Codex sessions (see below).
 
 The hook installs an autostart block and starts the rail when the theme is
 applied. To run it manually:
@@ -110,6 +117,22 @@ o.exec_on_start("quickshell -p " .. (os.getenv("HOME") or "") .. "/.config/omarc
 The rail assumes ~400px of right `gaps_out` (see
 `~/.config/hypr/monitors.lua`); on other workspaces or screens without the
 reservation it draws over windows at the right edge.
+
+#### AGENTS // LIVE
+
+`rail/ui/agents.py` polls every 1.5s and emits one JSON line per tick; the
+module renders the five most-recently-active sessions, each as `AGENT —
+session` over your latest prompt (`> …`) and the model's last few lines.
+
+- **Devin** — `~/.local/share/devin/cli/session_locks/<slug>.lock` holds the
+  session PID; a live PID means running. Text comes from the newest assistant
+  segment in `sessions.db` (`message_nodes`), the transcript as fallback;
+  recency sorts on `MAX(created_at)`, so mid-turn writes count.
+- **Codex** — live `codex` TUI processes (app-server/daemon filtered out) map
+  to `~/.codex/sessions/**/rollout-*-<uuid>.jsonl`; the last `agent_message`
+  or `task_complete` payload is the stream, the last `UserMessage` item the
+  prompt.
+- Sessions idle for three days or more are hidden, as are finished ones.
 
 ### Bar workspaces plugin (optional)
 
@@ -148,7 +171,7 @@ omarchy plymouth set '#0D141C' '#B5D2E3' ~/.config/omarchy/themes/oblivion-signa
 | `hyprland.lua` | Hyprland treatment — 1px cyan active border, teal inactive, no shadows, mechanical animations (stripped by `omarchy theme install`; see above) |
 | `icons.theme` | Icon theme name (`oblivion-signal`) |
 | `icons/oblivion-signal/` | Custom monoline icon set, inherits Papirus-Dark |
-| `rail/` | Standalone Quickshell telemetry rail — signal trace, vitals, load trace (see above) |
+| `rail/` | Standalone Quickshell telemetry rail — signal trace, vitals, load trace, live agents (see above) |
 | `plugins/oblivion.workspaces/` | Bar-widget clone of `omarchy.workspaces` — padded readouts, active underline |
 | `hooks/theme-set.d/oblivion-signal` | Automation hook — font, GTK CSS, icons, cursor, plugin swap, rail lifecycle |
 | `gtk.css` / `gtk3.css` | libadwaita / GTK3 overrides, installed by the theme-set hook |
