@@ -105,7 +105,7 @@ RailModule {
     visible: vitals.vram >= 0
     pal: root.pal
     vitals: root.vitals
-    label: "VRAM"
+    label: "GPU - VRAM"
     rightContent: vramRail
 
     Component {
