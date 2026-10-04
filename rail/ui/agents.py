@@ -22,7 +22,7 @@ TRANSCRIPTS = HOME + "/.local/share/devin/cli/transcripts"
 SESSIONS_DB = HOME + "/.local/share/devin/cli/sessions.db"
 CODEX_SESSIONS = HOME + "/.codex/sessions"
 MAX_AGENTS = 5
-LAST_LINES = 2
+LAST_LINES = 6
 TICK = 1.5
 
 
