@@ -162,6 +162,86 @@ RailModule {
   }
 
   VitalRow {
+    visible: vitals.gpu >= 0
+    pal: root.pal
+    vitals: root.vitals
+    label: "GPU"
+    rightContent: gpuRail
+
+    Component {
+      id: gpuRail
+      Row {
+        spacing: 7
+
+        Text {
+          text: vitals.gtemp >= 0 ? vitals.gtemp + "°C · " + vitals.gpu + "%" : vitals.gpu + "%"
+          color: vitals.gpu > 90 || vitals.gtemp > 85 ? pal.coralBright : pal.readout
+          font.family: "OCRA"
+          font.pixelSize: 11
+          anchors.verticalCenter: parent.verticalCenter
+        }
+
+        Row {
+          spacing: 1
+          anchors.verticalCenter: parent.verticalCenter
+
+          Repeater {
+            model: 10
+            Rectangle {
+              required property int index
+              readonly property bool on: index < Math.round(vitals.gpu / 10)
+              width: 3
+              height: 8
+              color: on ? (vitals.gpu > 90 && index >= 8 ? pal.coral : pal.accent)
+                        : Qt.alpha(pal.structural, 0.4)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  VitalRow {
+    visible: vitals.vram >= 0
+    pal: root.pal
+    vitals: root.vitals
+    label: "VRAM"
+    rightContent: vramRail
+
+    Component {
+      id: vramRail
+      Row {
+        spacing: 7
+
+        Text {
+          text: vitals.vram + "%"
+          color: vitals.vram > 90 ? pal.coralBright : pal.readout
+          font.family: "OCRA"
+          font.pixelSize: 11
+          anchors.verticalCenter: parent.verticalCenter
+        }
+
+        Row {
+          spacing: 1
+          anchors.verticalCenter: parent.verticalCenter
+
+          Repeater {
+            model: 10
+            Rectangle {
+              required property int index
+              readonly property bool on: index < Math.round(vitals.vram / 10)
+              width: 3
+              height: 8
+              color: on ? (vitals.vram > 90 && index >= 8 ? pal.coral : pal.accent)
+                        : Qt.alpha(pal.structural, 0.4)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  VitalRow {
     pal: root.pal
     vitals: root.vitals
     label: "NET"

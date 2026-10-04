@@ -9,6 +9,9 @@ QtObject {
 
   property int cpu: 0
   property int temp: -1
+  property int gpu: -1    // -1 = no NVIDIA telemetry
+  property int gtemp: -1
+  property int vram: -1
   property int mem: 0
   property int rx: 0       // bytes/s inbound
   property int tx: 0       // bytes/s outbound
@@ -26,6 +29,9 @@ QtObject {
     }
     cpu = d.cpu | 0
     temp = d.temp | 0
+    if (d.gpu !== undefined) gpu = d.gpu | 0
+    if (d.gtemp !== undefined) gtemp = d.gtemp | 0
+    if (d.vram !== undefined) vram = d.vram | 0
     mem = d.mem | 0
     rx = d.rx | 0
     tx = d.tx | 0

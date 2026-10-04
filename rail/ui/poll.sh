@@ -59,6 +59,18 @@ disk_pct() {
   df -P / | awk 'NR==2 { gsub(/%/, "", $5); print $5 }'
 }
 
+gpu() {
+  # -> "<util%> <tempC> <vram%>"; -1 fields when no NVIDIA GPU/driver
+  local row
+  row=$(nvidia-smi --query-gpu=utilization.gpu,temperature.gpu,memory.used,memory.total \
+        --format=csv,noheader,nounits 2>/dev/null | head -1 | tr -d ' ')
+  [[ -n $row ]] || { echo "-1 -1 -1"; return; }
+  local u t used total
+  IFS=',' read -r u t used total <<<"$row"
+  [[ $total -gt 0 ]] || total=1
+  echo "${u:-0} ${t:--1} $((used * 100 / total))"
+}
+
 uptime_short() {
   # DSEG7 has no 'm' glyph — under a day, render clock-style HH:MM:SS.
   awk '{ s = int($1); d = int(s / 86400); r = s % 86400; h = int(r / 3600); m = int(r % 3600 / 60); sec = r % 60;
@@ -83,6 +95,7 @@ while :; do
   rx=$(( (rx_b - rx_a) / 2 ))
   tx=$(( (tx_b - tx_a) / 2 ))
 
-  printf '{"cpu":%d,"temp":%d,"mem":%d,"rx":%d,"tx":%d,"pwr":"%s","disk":%d,"up":"%s"}\n' \
-    "$cpu" "$(cpu_temp)" "$(mem_pct)" "$rx" "$tx" "$(pwr)" "$(disk_pct)" "$(uptime_short)"
+  read -r gpu gtemp vram <<<"$(gpu)"
+  printf '{"cpu":%d,"temp":%d,"gpu":%d,"gtemp":%d,"vram":%d,"mem":%d,"rx":%d,"tx":%d,"pwr":"%s","disk":%d,"up":"%s"}\n' \
+    "$cpu" "$(cpu_temp)" "$gpu" "$gtemp" "$vram" "$(mem_pct)" "$rx" "$tx" "$(pwr)" "$(disk_pct)" "$(uptime_short)"
 done
