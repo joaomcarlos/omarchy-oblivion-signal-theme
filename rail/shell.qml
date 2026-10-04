@@ -66,6 +66,10 @@ ShellRoot {
           pal: shell.pal
           vitals: shell.vitals
         }
+        AgentsModule {
+          pal: shell.pal
+          vitals: shell.vitals
+        }
       }
     }
   }
