@@ -44,13 +44,23 @@ def devin_sessions():
         if not pid_alive(pid):
             continue
         slug = os.path.basename(lf)[:-5]
-        transcript = TRANSCRIPTS + "/" + slug + ".json"
-        try:
-            active = os.path.getmtime(transcript)
-        except OSError:
-            active = os.path.getmtime(lf)
-        out.append((active, "devin", slug))
+        out.append((devin_active(slug) or os.path.getmtime(lf),
+                    "devin", slug))
     return out
+
+
+def devin_active(slug):
+    """Newest message node timestamp — activity even mid-turn, before the
+    transcript file catches up."""
+    try:
+        con = sqlite3.connect("file:" + SESSIONS_DB + "?mode=ro", uri=True)
+        row = con.execute(
+            "SELECT MAX(created_at) FROM message_nodes WHERE session_id=?",
+            (slug,)).fetchone()
+        con.close()
+        return row[0] or 0 if row else 0
+    except Exception:
+        return 0
 
 
 def codex_sessions():
@@ -72,10 +82,19 @@ def codex_sessions():
         uuid = ""
         if args[0] == "resume" and len(args) > 1:
             uuid = args[1]
-        try:
-            active = os.path.getmtime("/proc/%d" % pid)
-        except OSError:
-            active = 0
+        active = 0
+        if uuid:
+            rollout = codex_rollout(uuid)
+            if rollout:
+                try:
+                    active = os.path.getmtime(rollout)
+                except OSError:
+                    pass
+        if not active:
+            try:
+                active = os.path.getmtime("/proc/%d" % pid)
+            except OSError:
+                pass
         out.append((active, "codex", uuid or "new"))
     return out
 
