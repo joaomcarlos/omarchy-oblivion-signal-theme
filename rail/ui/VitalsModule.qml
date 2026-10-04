@@ -290,13 +290,6 @@ RailModule {
   VitalRow {
     pal: root.pal
     vitals: root.vitals
-    label: "PWR"
-    value: vitals.pwr === "AC" ? "AC" : vitals.pwr + "%"
-  }
-
-  VitalRow {
-    pal: root.pal
-    vitals: root.vitals
     label: "DISK"
     value: vitals.disk + "%"
     alarming: vitals.disk > 90
