@@ -291,8 +291,37 @@ RailModule {
     pal: root.pal
     vitals: root.vitals
     label: "DISK"
-    value: vitals.disk + "%"
+    rightContent: diskRail
     alarming: vitals.disk > 90
+
+    Component {
+      id: diskRail
+      Row {
+        spacing: 7
+
+        Text {
+          text: root.rate(vitals.drd) + " ↓"
+          color: pal.readout
+          font.family: "OCRA"
+          font.pixelSize: 11
+          anchors.verticalCenter: parent.verticalCenter
+        }
+        Text {
+          text: root.rate(vitals.dwr) + " ↑"
+          color: pal.readout
+          font.family: "OCRA"
+          font.pixelSize: 11
+          anchors.verticalCenter: parent.verticalCenter
+        }
+        Text {
+          text: vitals.disk + "%"
+          color: vitals.disk > 90 ? pal.coralBright : pal.readout
+          font.family: "OCRA"
+          font.pixelSize: 11
+          anchors.verticalCenter: parent.verticalCenter
+        }
+      }
+    }
   }
 
   VitalRow {

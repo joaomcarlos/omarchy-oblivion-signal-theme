@@ -12,6 +12,12 @@ net_totals() {
   awk -F'[: ]+' 'NR>2 && $2 != "lo" { rx += $3; tx += $11 } END { print rx+0, tx+0 }' /proc/net/dev
 }
 
+disk_totals() {
+  # -> "<sectors_read> <sectors_written>" across whole disks (not partitions)
+  awk '$3 ~ /^(sd[a-z]+|xvd[a-z]+|vd[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+)$/ {
+        rd += $6; wr += $10 } END { print rd+0, wr+0 }' /proc/diskstats
+}
+
 cpu_temp() {
   local h n d t z
   for h in /sys/class/hwmon/hwmon*/name; do
@@ -81,9 +87,11 @@ uptime_short() {
 while :; do
   read -r busy_a idle_a <<<"$(cpu_totals)"
   read -r rx_a tx_a <<<"$(net_totals)"
+  read -r drd_a dwr_a <<<"$(disk_totals)"
   sleep 2
   read -r busy_b idle_b <<<"$(cpu_totals)"
   read -r rx_b tx_b <<<"$(net_totals)"
+  read -r drd_b dwr_b <<<"$(disk_totals)"
 
   d_busy=$((busy_b - busy_a))
   d_idle=$((idle_b - idle_a))
@@ -94,8 +102,10 @@ while :; do
   fi
   rx=$(( (rx_b - rx_a) / 2 ))
   tx=$(( (tx_b - tx_a) / 2 ))
+  drd=$(( (drd_b - drd_a) * 512 / 2 ))
+  dwr=$(( (dwr_b - dwr_a) * 512 / 2 ))
 
   read -r gpu gtemp vram <<<"$(gpu)"
-  printf '{"cpu":%d,"temp":%d,"gpu":%d,"gtemp":%d,"vram":%d,"mem":%d,"rx":%d,"tx":%d,"pwr":"%s","disk":%d,"up":"%s"}\n' \
-    "$cpu" "$(cpu_temp)" "$gpu" "$gtemp" "$vram" "$(mem_pct)" "$rx" "$tx" "$(pwr)" "$(disk_pct)" "$(uptime_short)"
+  printf '{"cpu":%d,"temp":%d,"gpu":%d,"gtemp":%d,"vram":%d,"mem":%d,"rx":%d,"tx":%d,"drd":%d,"dwr":%d,"pwr":"%s","disk":%d,"up":"%s"}\n' \
+    "$cpu" "$(cpu_temp)" "$gpu" "$gtemp" "$vram" "$(mem_pct)" "$rx" "$tx" "$drd" "$dwr" "$(pwr)" "$(disk_pct)" "$(uptime_short)"
 done

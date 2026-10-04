@@ -15,6 +15,8 @@ QtObject {
   property int mem: 0
   property int rx: 0       // bytes/s inbound
   property int tx: 0       // bytes/s outbound
+  property int drd: 0      // bytes/s disk read
+  property int dwr: 0      // bytes/s disk write
   property string pwr: "AC" // battery percent, "+NN" while charging, "AC" when none
   property int disk: 0
   property string up: ""
@@ -35,6 +37,8 @@ QtObject {
     mem = d.mem | 0
     rx = d.rx | 0
     tx = d.tx | 0
+    if (d.drd !== undefined) drd = d.drd | 0
+    if (d.dwr !== undefined) dwr = d.dwr | 0
     if (d.pwr !== undefined) pwr = String(d.pwr)
     disk = d.disk | 0
     if (d.up !== undefined) up = String(d.up)
