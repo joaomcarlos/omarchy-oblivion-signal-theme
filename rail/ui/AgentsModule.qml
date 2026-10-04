@@ -39,7 +39,8 @@ RailModule {
         spacing: 2
 
         Text {
-          text: modelData.id.toUpperCase().replace(/-/g, "·")
+          text: (modelData.kind === "codex" ? "CX·" : "DX·")
+                + modelData.id.toUpperCase().replace(/-/g, "·")
           color: pal.accent
           font.family: "Blender Trial"
           font.pixelSize: 9
