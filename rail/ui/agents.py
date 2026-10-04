@@ -2,8 +2,9 @@
 """Emit the currently-running Devin and Codex sessions as one JSON line per
 tick for the rail's AGENTS // LIVE module.
 
-Devin: session_locks/<slug>.lock holds a live PID; the transcript
-transcripts/<slug>.json yields the last agent message lines.
+Devin: session_locks/<slug>.lock holds a live PID; sessions.db
+message_nodes yields the newest assistant text segment (transcript as
+fallback).
 
 Codex: a live `codex resume <uuid>` process maps to
 ~/.codex/sessions/**/rollout-*-<uuid>.jsonl; the last agent_message /
@@ -12,15 +13,17 @@ task_complete payload yields the stream lines.
 import glob
 import json
 import os
+import sqlite3
 import time
 
 HOME = os.path.expanduser("~")
 LOCKS = HOME + "/.local/share/devin/cli/session_locks"
 TRANSCRIPTS = HOME + "/.local/share/devin/cli/transcripts"
+SESSIONS_DB = HOME + "/.local/share/devin/cli/sessions.db"
 CODEX_SESSIONS = HOME + "/.codex/sessions"
 MAX_AGENTS = 5
 LAST_LINES = 2
-TICK = 2.5
+TICK = 1.5
 
 
 def pid_alive(pid):
@@ -78,6 +81,24 @@ def codex_sessions():
 
 
 def devin_lines(slug):
+    """Newest assistant message node for the session — finer-grained than
+    the transcript's per-step writes, so intra-turn text shows sooner."""
+    try:
+        con = sqlite3.connect("file:" + SESSIONS_DB + "?mode=ro", uri=True)
+        row = con.execute(
+            "SELECT chat_message FROM message_nodes WHERE session_id=?"
+            " AND json_extract(chat_message,'$.role')='assistant'"
+            " AND json_extract(chat_message,'$.content') != ''"
+            " ORDER BY node_id DESC LIMIT 1", (slug,)).fetchone()
+        con.close()
+        if row:
+            lines = [l.strip() for l in
+                     (json.loads(row[0]).get("content") or "")
+                     .splitlines() if l.strip()]
+            if lines:
+                return lines[-LAST_LINES:]
+    except Exception:
+        pass
     try:
         with open(TRANSCRIPTS + "/" + slug + ".json") as f:
             steps = json.load(f).get("steps") or []
