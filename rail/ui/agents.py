@@ -99,6 +99,24 @@ def codex_sessions():
     return out
 
 
+def devin_prompt(slug):
+    """The session's latest user prompt, collapsed to one line."""
+    try:
+        con = sqlite3.connect("file:" + SESSIONS_DB + "?mode=ro", uri=True)
+        row = con.execute(
+            "SELECT chat_message FROM message_nodes WHERE session_id=?"
+            " AND json_extract(chat_message,'$.role')='user'"
+            " AND json_extract(chat_message,'$.content') != ''"
+            " ORDER BY node_id DESC LIMIT 1", (slug,)).fetchone()
+        con.close()
+        if row:
+            return " ".join(
+                (json.loads(row[0]).get("content") or "").split())[:120]
+    except Exception:
+        pass
+    return ""
+
+
 def devin_lines(slug):
     """Newest assistant message node for the session — finer-grained than
     the transcript's per-step writes, so intra-turn text shows sooner."""
@@ -134,6 +152,38 @@ def devin_lines(slug):
 def codex_rollout(uuid):
     hits = glob.glob(CODEX_SESSIONS + "/*/*/*/rollout-*-%s.jsonl" % uuid)
     return hits[0] if hits else ""
+
+
+def codex_prompt(path):
+    """The session's latest user_message from the rollout tail."""
+    try:
+        with open(path, "rb") as f:
+            f.seek(0, 2)
+            size = f.tell()
+            f.seek(max(0, size - 524288))
+            tail = f.read().decode("utf-8", "replace")
+    except OSError:
+        return ""
+    for line in reversed(tail.splitlines()):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            payload = json.loads(line).get("payload", {})
+        except (ValueError, AttributeError):
+            continue
+        if payload.get("type") == "user_message":
+            text = " ".join((payload.get("message") or "").split())
+            if text:
+                return text[:120]
+        item = payload.get("item") or {}
+        if payload.get("type") == "item_completed" and \
+                item.get("type") == "UserMessage":
+            for chunk in item.get("content") or []:
+                text = " ".join((chunk.get("text") or "").split())
+                if text:
+                    return text[:120]
+    return ""
 
 
 def codex_lines(path):
@@ -190,12 +240,14 @@ while True:
     for _, kind, ident in found[:MAX_AGENTS]:
         if kind == "devin":
             agents.append({"id": ident, "kind": kind,
+                           "prompt": devin_prompt(ident),
                            "lines": devin_lines(ident)})
         else:
             path = codex_rollout(ident) if ident != "new" else ""
             agents.append({
                 "id": codex_title(path, ident) if path else "codex",
                 "kind": kind,
+                "prompt": codex_prompt(path) if path else "",
                 "lines": codex_lines(path) if path else []})
     print(json.dumps({"agents": agents}), flush=True)
     time.sleep(TICK)

@@ -47,6 +47,17 @@ RailModule {
           font.letterSpacing: 1.3
         }
 
+        Text {
+          visible: modelData.prompt !== ""
+          width: parent.width
+          text: "> " + modelData.prompt
+          color: pal.readout
+          font.family: "OCRA"
+          font.pixelSize: 9
+          elide: Text.ElideRight
+          maximumLineCount: 1
+        }
+
         Repeater {
           model: modelData.lines
           Text {
