@@ -15,10 +15,11 @@ RailModule {
     return (v / 1073741824).toFixed(2) + " gb/s"
   }
 
-  // Disk always reads in gb/s; anything under 0.02 gb/s rounds to zero.
+  // Disk always reads in gb/s; below 0.01 gb/s (10 mb/s) it reads as zero,
+  // which is the smallest nonzero 2-decimal value.
   function diskRate(v) {
     var gb = v / 1073741824
-    return gb < 0.02 ? "0 gb/s" : gb.toFixed(2) + " gb/s"
+    return gb < 0.01 ? "0 gb/s" : gb.toFixed(2) + " gb/s"
   }
 
   component VitalRow: Item {
