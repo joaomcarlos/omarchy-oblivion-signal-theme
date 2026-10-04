@@ -15,6 +15,12 @@ RailModule {
     return (v / 1073741824).toFixed(2) + " gb/s"
   }
 
+  // Disk always reads in gb/s; anything under 0.02 gb/s rounds to zero.
+  function diskRate(v) {
+    var gb = v / 1073741824
+    return gb < 0.02 ? "0 gb/s" : gb.toFixed(2) + " gb/s"
+  }
+
   component VitalRow: Item {
     property var pal: null
     property var vitals: null
@@ -300,14 +306,14 @@ RailModule {
         spacing: 7
 
         Text {
-          text: root.rate(vitals.drd) + " ↓"
+          text: root.diskRate(vitals.drd) + " ↓"
           color: pal.readout
           font.family: "OCRA"
           font.pixelSize: 11
           anchors.verticalCenter: parent.verticalCenter
         }
         Text {
-          text: root.rate(vitals.dwr) + " ↑"
+          text: root.diskRate(vitals.dwr) + " ↑"
           color: pal.readout
           font.family: "OCRA"
           font.pixelSize: 11
