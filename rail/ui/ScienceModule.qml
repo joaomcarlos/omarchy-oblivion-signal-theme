@@ -29,12 +29,19 @@ RailModule {
   property var packNames: []
   property real packMax: 1
   property real maxPackRate: 0
+  // pack name -> cropped icon path, resolved by the tailer from the local
+  // Factorio install (the game art is never vendored into the repo)
+  property var icons: ({})
 
   function ingest(line) {
     var d
     try {
       d = JSON.parse(line)
     } catch (e) {
+      return
+    }
+    if (d.icons) {
+      icons = d.icons
       return
     }
     if (d.stale) {
@@ -202,8 +209,8 @@ RailModule {
       anchors.leftMargin: 4 // lines up with the "0" axis mark
       anchors.bottom: parent.bottom
       anchors.bottomMargin: 13 // clears the time-axis labels
-      width: root.packNames.length * 10 + 2
-      height: 54
+      width: root.packNames.length * 14 + 2
+      height: 68
 
       Rectangle {
         anchors.fill: parent
@@ -221,8 +228,9 @@ RailModule {
           readonly property real rate: root.packs[modelData] || 0
           readonly property bool leader: rate >= root.maxPackRate && rate > 0
           readonly property var mark: root.packMarks[modelData] || null
+          readonly property string icon: root.icons[modelData] || ""
 
-          x: 6 + index * 10
+          x: 8 + index * 14
           width: 4
           height: packBox.height
 
@@ -230,7 +238,7 @@ RailModule {
           Rectangle {
             id: bar
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 15
+            anchors.bottomMargin: 21
             width: 4
             height: parent.rate <= 0 ? 1
                   : Math.max(2, parent.rate / root.packMax * 32)
@@ -239,8 +247,24 @@ RailModule {
             opacity: parent.rate <= 0 ? 1 : (parent.leader ? 0.85 : 0.7)
           }
 
-          // colour-of-the-science letter under the bar
+          // the pack's own icon from the local install, centred under the bar
+          Image {
+            visible: parent.icon !== ""
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 3
+            source: parent.icon !== "" ? "file://" + parent.icon : ""
+            sourceSize.width: 13
+            sourceSize.height: 13
+            width: 13
+            height: 13
+            smooth: true
+            opacity: parent.leader ? 1 : 0.85
+          }
+
+          // fallback when the install has no icon for this pack
           Text {
+            visible: parent.icon === ""
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 4
