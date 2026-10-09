@@ -179,38 +179,48 @@ RailModule {
     Repeater {
       model: root.packNames
 
-      Rectangle {
+      Item {
         required property int index
         required property string modelData
         readonly property real rate: root.packs[modelData] || 0
-        x: graph.width * index / root.packNames.length
-        width: Math.max(1, graph.width / root.packNames.length - 1)
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 13 // clears the time-axis labels
-        height: rate <= 0 ? 1
-                           : Math.max(2, rate / root.packMax * graph.height * 0.45)
-        color: rate <= 0 ? Qt.alpha(pal.structural, 0.5)
-             : (rate >= root.maxPackRate && rate > 0 ? pal.bright
-                                                     : Qt.alpha(pal.accent, 0.55))
+        readonly property bool leader: rate >= root.maxPackRate && rate > 0
 
-        // pack name running up the bar, left-aligned to its edge
-        Text {
-          x: 2
+        x: graph.width * index / root.packNames.length
+        width: graph.width / root.packNames.length
+        height: graph.height
+
+        // thin mark per pack, centered in its column like the signal bars
+        Rectangle {
+          id: bar
+          anchors.horizontalCenter: parent.horizontalCenter
           anchors.bottom: parent.bottom
-          width: Math.max(10, graph.height - 22)
-          height: 9
-          rotation: -90
-          transformOrigin: Item.BottomLeft
-          text: modelData.replace(/-science-pack$/, "").toUpperCase()
-          color: rate >= root.maxPackRate && rate > 0
-                 ? Qt.alpha(pal.bg, 0.85)      // dark ink on the bright leader
-                 : Qt.alpha(pal.readout, 0.8)
-          font.family: "Blender Trial"
-          font.pixelSize: 7
-          font.letterSpacing: 0.6
-          elide: Text.ElideRight
-          maximumLineCount: 1
-          verticalAlignment: Text.AlignVCenter
+          anchors.bottomMargin: 13 // clears the time-axis labels
+          width: 4
+          height: parent.rate <= 0 ? 1
+                : Math.max(2, parent.rate / root.packMax * graph.height * 0.45)
+          color: parent.rate <= 0 ? Qt.alpha(pal.structural, 0.5)
+               : (parent.leader ? pal.bright : pal.accent)
+          opacity: parent.rate <= 0 ? 1 : (parent.leader ? 0.85 : 0.7)
+
+          // pack name running up the bar, left-aligned to its edge
+          Text {
+            x: 2
+            anchors.bottom: parent.bottom
+            width: Math.max(10, graph.height - 22)
+            height: 9
+            rotation: -90
+            transformOrigin: Item.BottomLeft
+            text: modelData.replace(/-science-pack$/, "").toUpperCase()
+            color: parent.parent.leader
+                   ? Qt.alpha(pal.bg, 0.85)   // dark ink on the bright leader
+                   : Qt.alpha(pal.readout, 0.8)
+            font.family: "Blender Trial"
+            font.pixelSize: 7
+            font.letterSpacing: 0.6
+            elide: Text.ElideRight
+            maximumLineCount: 1
+            verticalAlignment: Text.AlignVCenter
+          }
         }
       }
     }
