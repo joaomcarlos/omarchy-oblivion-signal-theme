@@ -182,7 +182,7 @@ RailModule {
       anchors.bottom: parent.bottom
       anchors.bottomMargin: 13 // clears the time-axis labels
       width: root.packNames.length * 10 + 2
-      height: 106
+      height: 54
 
       Rectangle {
         anchors.fill: parent
@@ -208,7 +208,7 @@ RailModule {
           Rectangle {
             id: bar
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 4
+            anchors.bottomMargin: 15
             width: 4
             height: parent.rate <= 0 ? 1
                   : Math.max(2, parent.rate / root.packMax * 32)
@@ -217,25 +217,17 @@ RailModule {
             opacity: parent.rate <= 0 ? 1 : (parent.leader ? 0.85 : 0.7)
           }
 
-          // pack name in its own band above the bars, running upward from
-          // the bar's left edge
+          // single-letter mark under the bar
           Text {
-            x: 1
-            y: 38
-            width: 62
-            height: 8
-            rotation: -90
-            transformOrigin: Item.BottomLeft
-            text: modelData.replace(/-science-pack$/, "").toUpperCase()
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 4
+            text: modelData.replace(/-science-pack$/, "").charAt(0).toUpperCase()
             color: parent.leader
                    ? Qt.alpha(pal.readout, 0.95) // brighter on the leader
                    : Qt.alpha(pal.mutedData, 0.9)
             font.family: "Blender Trial"
             font.pixelSize: 7
-            font.letterSpacing: 0.6
-            elide: Text.ElideRight
-            maximumLineCount: 1
-            verticalAlignment: Text.AlignVCenter
           }
         }
       }
