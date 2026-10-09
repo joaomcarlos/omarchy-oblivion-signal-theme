@@ -147,13 +147,13 @@ technology's research ingredients, so modded and Space Age packs come along.
 
 `rail/ui/science.py` tails that file — emitting `{"stale": true}` when the
 game is not writing — and the panel graphs the last two minutes of packs per
-minute, with a column per pack under the trace. Each column is marked with the
-letter of the colour that pack is known by, tinted that colour: R red, G
-green, G grey, B blue, P purple, Y yellow, W white, and for Space Age O
-orange, M magenta, L lime, I indigo, S slate. Hues are averaged from the
-game's own item icons; the wiki names only the base-game colours, so the Space
-Age names follow the icon hue. Install the addon by linking it into the mod
-directory:
+minute, with a column per pack under the trace. Each column is marked in that
+pack's colour: base-game packs by the letter of the colour they are known by
+(R red, G green, G grey, B blue, P purple, Y yellow, W white), and Space Age
+packs — which the wiki gives no colour name — by the letter of the science
+itself (M metallurgic, E electromagnetic, A agricultural, C cryogenic, P
+promethium). Hues are averaged from the game's own item icons. Install the
+addon by linking it into the mod directory:
 
 ```bash
 ln -sfn ~/.config/omarchy/themes/oblivion-signal/factorio/oblivion-science-signal \

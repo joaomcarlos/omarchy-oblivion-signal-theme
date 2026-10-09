@@ -75,10 +75,11 @@ RailModule {
     return out
   }
 
-  // Each pack's mark: the letter of the colour the community knows it by, in
-  // that colour. Hues are averaged from the game's own item icons; the wiki
-  // names only the base-game colours, so the Space Age names follow the icon
-  // hue (orange, magenta, lime, indigo, slate).
+  // Each pack's mark, in that pack's colour. The base game marks are the
+  // letter of the colour the pack is known by (R red, G green, G grey, B
+  // blue, P purple, Y yellow, W white). Space Age packs have no colour name
+  // in the wiki, so theirs is the letter of the science itself — M for
+  // metallurgic, and so on. Hues are averaged from the game's own icons.
   readonly property var packMarks: ({
     "automation-science-pack": { letter: "R", color: "#F47C7C" },       // red
     "logistic-science-pack": { letter: "G", color: "#85F589" },         // green
@@ -87,11 +88,11 @@ RailModule {
     "production-science-pack": { letter: "P", color: "#CF72FC" },       // purple
     "utility-science-pack": { letter: "Y", color: "#FFDE85" },          // yellow
     "space-science-pack": { letter: "W", color: "#FFFDFD" },            // white
-    "metallurgic-science-pack": { letter: "O", color: "#FF9028" },      // orange
-    "electromagnetic-science-pack": { letter: "M", color: "#FF4BAB" },  // magenta
-    "agricultural-science-pack": { letter: "L", color: "#C0D128" },     // lime
-    "cryogenic-science-pack": { letter: "I", color: "#6070F0" },        // indigo
-    "promethium-science-pack": { letter: "S", color: "#ABB0CC" },       // slate
+    "metallurgic-science-pack": { letter: "M", color: "#FF9028" },      // orange
+    "electromagnetic-science-pack": { letter: "E", color: "#FF4BAB" },  // magenta
+    "agricultural-science-pack": { letter: "A", color: "#C0D128" },     // lime
+    "cryogenic-science-pack": { letter: "C", color: "#6070F0" },        // indigo
+    "promethium-science-pack": { letter: "P", color: "#ABB0CC" },       // slate
   })
 
   // big factories run six figures of packs per minute — keep it compact
