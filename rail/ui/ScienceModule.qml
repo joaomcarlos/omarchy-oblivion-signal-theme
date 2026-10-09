@@ -25,6 +25,10 @@ RailModule {
   property real spmMax: 60
   property var spmPts: []
   property var spmFill: []
+  // one column per pack type, in the log's stable (alphabetical) order
+  property var packNames: []
+  property real packMax: 1
+  property real maxPackRate: 0
 
   function ingest(line) {
     var d
@@ -43,6 +47,12 @@ RailModule {
     prog = d.prog || 0
     total = d.total || 0
     packs = d.spm || ({})
+    if (packNames.length === 0) packNames = Object.keys(packs)
+    var peak = 0
+    for (var i = 0; i < packNames.length; i++)
+      peak = Math.max(peak, packs[packNames[i]] || 0)
+    maxPackRate = peak
+    packMax = Math.max(1, packMax * 0.98, peak)
     spmHist = spmHist.concat([total]).slice(-samples)
     spmMax = Math.max(60, spmMax * 0.98, total)
     spmPts = points(spmHist, spmMax, graph.width, graph.height)
@@ -70,19 +80,6 @@ RailModule {
     if (value >= 1e6) return (value / 1e6).toFixed(2) + "m"
     if (value >= 1e3) return (value / 1e3).toFixed(1) + "k"
     return value.toFixed(1)
-  }
-
-  // per-pack readout, strongest first: "UTILITY 48.9k · CHEMICAL 43.5k"
-  function packLine() {
-    var entries = []
-    for (var name in packs)
-      if (packs[name] > 0) entries.push([name, packs[name]])
-    entries.sort(function(a, b) { return b[1] - a[1] })
-    var out = []
-    for (var i = 0; i < Math.min(3, entries.length); i++)
-      out.push(entries[i][0].replace(/-science-pack$/, "").toUpperCase()
-               + " " + spm(entries[i][1]))
-    return out.length ? out.join(" · ") : "NO SCIENCE FLOW"
   }
 
   // legend row — research name left, packs/min right
@@ -177,6 +174,36 @@ RailModule {
       }
     }
 
+    // one column per science pack, scaled to the busiest pack and capped
+    // short so the total trace above stays readable
+    Repeater {
+      model: root.packNames
+
+      Rectangle {
+        required property int index
+        required property string modelData
+        readonly property real rate: root.packs[modelData] || 0
+        x: graph.width * index / root.packNames.length
+        width: Math.max(1, graph.width / root.packNames.length - 1)
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 13 // clears the time-axis labels
+        height: rate <= 0 ? 1
+                           : Math.max(2, rate / root.packMax * graph.height * 0.45)
+        color: rate <= 0 ? Qt.alpha(pal.structural, 0.5)
+             : (rate >= root.maxPackRate && rate > 0 ? pal.bright
+                                                     : Qt.alpha(pal.accent, 0.55))
+      }
+    }
+
+    // baseline under the pack columns
+    Rectangle {
+      x: 0
+      y: graph.height - 14
+      width: graph.width
+      height: 1
+      color: Qt.alpha(pal.structural, 0.5)
+    }
+
     // science per minute — filled area under the line
     Shape {
       anchors.fill: parent
@@ -263,16 +290,5 @@ RailModule {
       interval: 500
       pal: root.pal
     }
-  }
-
-  Text {
-    width: parent.width
-    text: root.packLine()
-    color: pal.mutedData
-    font.family: "Blender Trial"
-    font.pixelSize: 8
-    font.letterSpacing: 1.1
-    elide: Text.ElideRight
-    maximumLineCount: 1
   }
 }
