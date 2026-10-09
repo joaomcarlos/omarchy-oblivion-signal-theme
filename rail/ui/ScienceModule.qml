@@ -25,7 +25,7 @@ RailModule {
   property real spmMax: 60
   property var spmPts: []
   property var spmFill: []
-  // one column per pack type, in the log's stable (alphabetical) order
+  // one column per pack type, in the game's own progression order
   property var packNames: []
   property real packMax: 1
   property real maxPackRate: 0
@@ -54,7 +54,14 @@ RailModule {
     prog = d.prog || 0
     total = d.total || 0
     packs = d.spm || ({})
-    if (packNames.length === 0) packNames = Object.keys(packs)
+    if (packNames.length === 0)
+      packNames = Object.keys(packs).sort(function(a, b) {
+        var ra = packOrder.indexOf(a)
+        var rb = packOrder.indexOf(b)
+        if (ra < 0) ra = packOrder.length
+        if (rb < 0) rb = packOrder.length
+        return ra !== rb ? ra - rb : (a < b ? -1 : 1)
+      })
     var peak = 0
     for (var i = 0; i < packNames.length; i++)
       peak = Math.max(peak, packs[packNames[i]] || 0)
@@ -101,6 +108,18 @@ RailModule {
     "cryogenic-science-pack": { letter: "C", color: "#6070F0" },        // indigo
     "promethium-science-pack": { letter: "P", color: "#ABB0CC" },       // slate
   })
+
+  // The order the game introduces them: the base-game tree, then the Space
+  // Age packs in the wiki's listing order. Modded packs, which have no place
+  // in that progression, sort alphabetically after the rest.
+  readonly property var packOrder: [
+    "automation-science-pack", "logistic-science-pack",
+    "military-science-pack", "chemical-science-pack",
+    "production-science-pack", "utility-science-pack",
+    "space-science-pack", "metallurgic-science-pack",
+    "electromagnetic-science-pack", "agricultural-science-pack",
+    "cryogenic-science-pack", "promethium-science-pack"
+  ]
 
   // big factories run six figures of packs per minute — keep it compact
   function spm(value) {
