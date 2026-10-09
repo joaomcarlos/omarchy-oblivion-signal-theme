@@ -33,7 +33,12 @@ RailModule {
     cpuHist = cpuHist.concat([vitals.cpu]).slice(-samples)
     memHist = memHist.concat([vitals.mem]).slice(-samples)
     netHist = netHist.concat([rate]).slice(-samples)
-    netMax = Math.max(65536, netMax * 0.97, rate)
+    // scale to the tallest tick in the window, not a decaying peak, so a
+    // drawn tick's height is fixed until its maximum scrolls off
+    var win = 65536
+    for (var i = 0; i < netHist.length; i++)
+      win = Math.max(win, netHist[i])
+    netMax = win
     cpuPts = pts(cpuHist, 100, graph.width, graph.height)
     memPts = pts(memHist, 100, graph.width, graph.height)
   }

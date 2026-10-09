@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 
 // SCIENCE // RESEARCH — science-per-minute off the Factorio addon's log:
-// a rolling 2-minute trace of packs consumed per minute, the technology
+// a rolling 10-minute trace of packs consumed per minute, the technology
 // under research and its progress. Same idiom as the load trace: hairline
 // grid, edge labels, coral anomaly marker, scan sweep.
 RailModule {
@@ -68,7 +68,13 @@ RailModule {
     maxPackRate = peak
     packMax = Math.max(1, packMax * 0.98, peak)
     spmHist = spmHist.concat([total]).slice(-samples)
-    spmMax = Math.max(60, spmMax * 0.98, total)
+    // scale to the tallest sample in the window, not a decaying peak, so a
+    // point's height is fixed once drawn — the trace only re-scales when a
+    // new maximum enters or the old one scrolls off the left edge
+    var win = 60
+    for (var j = 0; j < spmHist.length; j++)
+      win = Math.max(win, spmHist[j])
+    spmMax = win
     spmPts = points(spmHist, spmMax, graph.width, graph.height)
     // close the area under the trace explicitly, so a partly-filled window
     // does not draw a diagonal edge back to the origin
