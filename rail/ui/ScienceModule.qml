@@ -75,6 +75,25 @@ RailModule {
     return out
   }
 
+  // Each pack's mark: the letter of the colour the community knows it by, in
+  // that colour. Hues are averaged from the game's own item icons; the wiki
+  // names only the base-game colours, so the Space Age names follow the icon
+  // hue (orange, magenta, lime, indigo, slate).
+  readonly property var packMarks: ({
+    "automation-science-pack": { letter: "R", color: "#F47C7C" },       // red
+    "logistic-science-pack": { letter: "G", color: "#85F589" },         // green
+    "military-science-pack": { letter: "G", color: "#C0C2D1" },         // grey
+    "chemical-science-pack": { letter: "B", color: "#7FE1FF" },         // blue
+    "production-science-pack": { letter: "P", color: "#CF72FC" },       // purple
+    "utility-science-pack": { letter: "Y", color: "#FFDE85" },          // yellow
+    "space-science-pack": { letter: "W", color: "#FFFDFD" },            // white
+    "metallurgic-science-pack": { letter: "O", color: "#FF9028" },      // orange
+    "electromagnetic-science-pack": { letter: "M", color: "#FF4BAB" },  // magenta
+    "agricultural-science-pack": { letter: "L", color: "#C0D128" },     // lime
+    "cryogenic-science-pack": { letter: "I", color: "#6070F0" },        // indigo
+    "promethium-science-pack": { letter: "S", color: "#ABB0CC" },       // slate
+  })
+
   // big factories run six figures of packs per minute — keep it compact
   function spm(value) {
     if (value >= 1e6) return (value / 1e6).toFixed(2) + "m"
@@ -200,6 +219,7 @@ RailModule {
           required property string modelData
           readonly property real rate: root.packs[modelData] || 0
           readonly property bool leader: rate >= root.maxPackRate && rate > 0
+          readonly property var mark: root.packMarks[modelData] || null
 
           x: 6 + index * 10
           width: 4
@@ -218,15 +238,16 @@ RailModule {
             opacity: parent.rate <= 0 ? 1 : (parent.leader ? 0.85 : 0.7)
           }
 
-          // single-letter mark under the bar
+          // colour-of-the-science letter under the bar
           Text {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 4
-            text: modelData.replace(/-science-pack$/, "").charAt(0).toUpperCase()
-            color: parent.leader
-                   ? Qt.alpha(pal.readout, 0.95) // brighter on the leader
-                   : Qt.alpha(pal.mutedData, 0.9)
+            text: parent.mark ? parent.mark.letter
+                              : modelData.replace(/-science-pack$/, "")
+                                         .charAt(0).toUpperCase()
+            color: parent.mark ? parent.mark.color : pal.mutedData
+            opacity: parent.leader ? 1 : 0.85
             font.family: "Blender Trial"
             font.pixelSize: 7
           }
