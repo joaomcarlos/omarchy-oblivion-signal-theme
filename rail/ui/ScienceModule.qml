@@ -174,11 +174,12 @@ RailModule {
       }
     }
 
-    // the pack columns, grouped tight in their own bordered box: 8px pitch
-    // keeps the vertical names side by side without overlapping
+    // the pack columns, grouped tight in their own bordered box, anchored
+    // to the graph's left edge
     Item {
       id: packBox
-      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.left: parent.left
+      anchors.leftMargin: 4 // lines up with the "0" axis mark
       anchors.bottom: parent.bottom
       anchors.bottomMargin: 13 // clears the time-axis labels
       width: root.packNames.length * 10 + 2
