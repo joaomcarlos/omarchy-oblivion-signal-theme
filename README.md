@@ -146,7 +146,7 @@ is the API's `output` category). Science packs are discovered from every
 technology's research ingredients, so modded and Space Age packs come along.
 
 `rail/ui/science.py` tails that file — emitting `{"stale": true}` when the
-game is not writing — and the panel graphs the last two minutes of packs per
+game is not writing — and the panel graphs the last ten minutes of packs per
 minute, with a column per pack under the trace, each marked with that pack's
 own icon. The tailer finds the icon in the local install (following the
 running game's binary back to its `data/` directory, then the usual Steam and

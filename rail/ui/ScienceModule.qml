@@ -14,7 +14,7 @@ RailModule {
   stateDot: stale ? pal.coral : (tech !== "" ? pal.accent : pal.mutedData)
   alert: stale
 
-  readonly property int samples: 120 // 1 Hz samples: a 2-minute window
+  readonly property int samples: 600 // 1 Hz samples: a 10-minute window
   property bool stale: true
   property string tech: ""
   property string queue: ""
@@ -367,7 +367,7 @@ RailModule {
     }
     Text {
       anchors { bottom: parent.bottom; bottomMargin: 3; horizontalCenter: parent.horizontalCenter }
-      text: "-2M"
+      text: "-10M"
       color: pal.mutedData
       font.family: "Blender Trial"
       font.pixelSize: 8
