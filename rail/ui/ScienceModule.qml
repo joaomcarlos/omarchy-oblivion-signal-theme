@@ -192,6 +192,26 @@ RailModule {
         color: rate <= 0 ? Qt.alpha(pal.structural, 0.5)
              : (rate >= root.maxPackRate && rate > 0 ? pal.bright
                                                      : Qt.alpha(pal.accent, 0.55))
+
+        // pack name running up the bar, left-aligned to its edge
+        Text {
+          x: 2
+          anchors.bottom: parent.bottom
+          width: Math.max(10, graph.height - 22)
+          height: 9
+          rotation: -90
+          transformOrigin: Item.BottomLeft
+          text: modelData.replace(/-science-pack$/, "").toUpperCase()
+          color: rate >= root.maxPackRate && rate > 0
+                 ? Qt.alpha(pal.bg, 0.85)      // dark ink on the bright leader
+                 : Qt.alpha(pal.readout, 0.8)
+          font.family: "Blender Trial"
+          font.pixelSize: 7
+          font.letterSpacing: 0.6
+          elide: Text.ElideRight
+          maximumLineCount: 1
+          verticalAlignment: Text.AlignVCenter
+        }
       }
     }
 
