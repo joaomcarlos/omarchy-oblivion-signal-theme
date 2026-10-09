@@ -1,0 +1,9 @@
+{
+  "name": "oblivion-science-signal",
+  "version": "0.1.0",
+  "title": "Oblivion Signal — Science Telemetry",
+  "author": "joaomcarlos",
+  "factorio_version": "2.1",
+  "description": "Writes one JSON line per second to script-output/oblivion-science.jsonl: the current research, its progress, and science packs consumed per minute. Feeds the Oblivion Signal desktop rail.",
+  "dependencies": ["base >= 2.1"]
+}

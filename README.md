@@ -98,6 +98,8 @@ swaps. Four modules, top to bottom:
   DISK read/write rates plus usage percent, and UPTIME. GPU rows hide when
   `nvidia-smi` reports nothing.
 - **TRACE // LOAD** — a rolling two-minute CPU/MEM trace with NET ticks.
+- **SCIENCE // RESEARCH** — the Factorio addon's science-per-minute trace,
+  the technology under research, and its progress (see below).
 - **AGENTS // LIVE** — the five most-recently-active running Devin and
   Codex sessions (see below).
 
@@ -133,6 +135,28 @@ session` over your latest prompt (`> …`) and the model's last few lines.
   or `task_complete` payload is the stream, the last `UserMessage` item the
   prompt.
 - Sessions idle for three days or more are hidden, as are finished ones.
+
+#### SCIENCE // RESEARCH
+
+`factorio/oblivion-science-signal/` is a Factorio 2.1 addon that appends one
+JSON line per second to `script-output/oblivion-science.jsonl`: the current
+research and its progress, and every science pack's consumption per minute
+(read from the item production statistics, where the GUI's consumption side
+is the API's `output` category). Science packs are discovered from every
+technology's research ingredients, so modded and Space Age packs come along.
+
+`rail/ui/science.py` tails that file — emitting `{"stale": true}` when the
+game is not writing — and the panel graphs the last two minutes of packs per
+minute. Install the addon by linking it into the mod directory:
+
+```bash
+ln -sfn ~/.config/omarchy/themes/oblivion-signal/factorio/oblivion-science-signal \
+  ~/.factorio/mods/oblivion-science-signal
+```
+
+Factorio only loads mods at startup, so restart the game after installing;
+adding it to an existing save prompts the usual mods-changed confirmation.
+Until the game is running the panel reads `NO SIGNAL`.
 
 ### Bar workspaces plugin (optional)
 
@@ -172,6 +196,7 @@ omarchy plymouth set '#0D141C' '#B5D2E3' ~/.config/omarchy/themes/oblivion-signa
 | `icons.theme` | Icon theme name (`oblivion-signal`) |
 | `icons/oblivion-signal/` | Custom monoline icon set, inherits Papirus-Dark |
 | `rail/` | Standalone Quickshell telemetry rail — signal trace, vitals, load trace, live agents (see above) |
+| `factorio/oblivion-science-signal/` | Factorio 2.1 addon writing science telemetry for the rail |
 | `plugins/oblivion.workspaces/` | Bar-widget clone of `omarchy.workspaces` — padded readouts, active underline |
 | `hooks/theme-set.d/oblivion-signal` | Automation hook — font, GTK CSS, icons, cursor, plugin swap, rail lifecycle |
 | `gtk.css` / `gtk3.css` | libadwaita / GTK3 overrides, installed by the theme-set hook |
