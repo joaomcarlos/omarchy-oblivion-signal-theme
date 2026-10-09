@@ -174,46 +174,62 @@ RailModule {
       }
     }
 
-    // one column per science pack, scaled to the busiest pack and capped
-    // short so the total trace above stays readable
-    Repeater {
-      model: root.packNames
+    // the pack columns, grouped tight in their own bordered box: 8px pitch
+    // keeps the vertical names side by side without overlapping
+    Item {
+      id: packBox
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.bottom: parent.bottom
+      anchors.bottomMargin: 13 // clears the time-axis labels
+      width: root.packNames.length * 10 + 2
+      height: 106
 
-      Item {
-        required property int index
-        required property string modelData
-        readonly property real rate: root.packs[modelData] || 0
-        readonly property bool leader: rate >= root.maxPackRate && rate > 0
+      Rectangle {
+        anchors.fill: parent
+        color: Qt.alpha(pal.bg, 0.45)
+        border.width: 1
+        border.color: Qt.alpha(pal.structural, 0.55)
+      }
 
-        x: graph.width * index / root.packNames.length
-        width: graph.width / root.packNames.length
-        height: graph.height
+      Repeater {
+        model: root.packNames
 
-        // thin mark per pack, centered in its column like the signal bars
-        Rectangle {
-          id: bar
-          anchors.horizontalCenter: parent.horizontalCenter
-          anchors.bottom: parent.bottom
-          anchors.bottomMargin: 13 // clears the time-axis labels
+        Item {
+          required property int index
+          required property string modelData
+          readonly property real rate: root.packs[modelData] || 0
+          readonly property bool leader: rate >= root.maxPackRate && rate > 0
+
+          x: 6 + index * 10
           width: 4
-          height: parent.rate <= 0 ? 1
-                : Math.max(2, parent.rate / root.packMax * graph.height * 0.45)
-          color: parent.rate <= 0 ? Qt.alpha(pal.structural, 0.5)
-               : (parent.leader ? pal.bright : pal.accent)
-          opacity: parent.rate <= 0 ? 1 : (parent.leader ? 0.85 : 0.7)
+          height: packBox.height
 
-          // pack name running up the bar, left-aligned to its edge
-          Text {
-            x: 2
+          // thin mark per pack, like the signal bars
+          Rectangle {
+            id: bar
             anchors.bottom: parent.bottom
-            width: Math.max(10, graph.height - 22)
-            height: 9
+            anchors.bottomMargin: 4
+            width: 4
+            height: parent.rate <= 0 ? 1
+                  : Math.max(2, parent.rate / root.packMax * 32)
+            color: parent.rate <= 0 ? Qt.alpha(pal.structural, 0.5)
+                 : (parent.leader ? pal.bright : pal.accent)
+            opacity: parent.rate <= 0 ? 1 : (parent.leader ? 0.85 : 0.7)
+          }
+
+          // pack name in its own band above the bars, running upward from
+          // the bar's left edge
+          Text {
+            x: 1
+            y: 38
+            width: 62
+            height: 8
             rotation: -90
             transformOrigin: Item.BottomLeft
             text: modelData.replace(/-science-pack$/, "").toUpperCase()
-            color: parent.parent.leader
-                   ? Qt.alpha(pal.bg, 0.85)   // dark ink on the bright leader
-                   : Qt.alpha(pal.readout, 0.8)
+            color: parent.leader
+                   ? Qt.alpha(pal.readout, 0.95) // brighter on the leader
+                   : Qt.alpha(pal.mutedData, 0.9)
             font.family: "Blender Trial"
             font.pixelSize: 7
             font.letterSpacing: 0.6
@@ -223,15 +239,6 @@ RailModule {
           }
         }
       }
-    }
-
-    // baseline under the pack columns
-    Rectangle {
-      x: 0
-      y: graph.height - 14
-      width: graph.width
-      height: 1
-      color: Qt.alpha(pal.structural, 0.5)
     }
 
     // science per minute — filled area under the line
