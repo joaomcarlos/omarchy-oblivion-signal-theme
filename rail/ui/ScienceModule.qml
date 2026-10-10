@@ -3,8 +3,8 @@ import QtQuick.Shapes
 import Quickshell
 import Quickshell.Io
 
-// SCIENCE // RESEARCH — science-per-minute off the Factorio addon's log:
-// a rolling 10-minute trace of packs consumed per minute, the technology
+// SCIENCE // RESEARCH — science-per-second off the Factorio addon's log:
+// a rolling 10-minute trace of packs consumed per second, the technology
 // under research and its progress. Same idiom as the load trace: hairline
 // grid, edge labels, coral anomaly marker, scan sweep.
 RailModule {
@@ -144,7 +144,7 @@ RailModule {
       width: parent.width * 0.62
       text: stale ? "AWAITING FACTORIO"
             : (queue !== "" ? "NEXT · " + queue.toUpperCase()
-                            : "SPM // PACKS CONSUMED")
+                            : "SPS // PACKS CONSUMED")
       color: pal.mutedData
       font.family: "Blender Trial"
       font.pixelSize: 9
@@ -153,7 +153,8 @@ RailModule {
     }
     Text {
       anchors.right: parent.right
-      text: stale ? "--" : spm(total) + " spm"
+      // the log carries per-minute rates; the game displays per-second
+      text: stale ? "--" : spm(total / 60) + "/s"
       color: pal.mutedData
       font.family: "OCRA"
       font.pixelSize: 9
@@ -359,7 +360,7 @@ RailModule {
     // edge labels — the trace's cardinal marks
     Text {
       anchors { top: parent.top; topMargin: 3; left: parent.left; leftMargin: 4 }
-      text: root.spm(root.spmMax)
+      text: root.spm(root.spmMax / 60)
       color: pal.mutedData
       font.family: "Blender Trial"
       font.pixelSize: 8

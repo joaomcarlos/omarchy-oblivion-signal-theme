@@ -147,9 +147,11 @@ technology's research ingredients, so modded and Space Age packs come along.
 
 `rail/ui/science.py` tails that file — emitting `{"stale": true}` when the
 game is not writing — and the panel graphs the last ten minutes of packs per
-minute, with a column per pack under the trace, each marked with that pack's
-own icon. The tailer finds the icon in the local install (following the
-running game's binary back to its `data/` directory, then the usual Steam and
+second — the rates arrive per minute and the display divides by 60 to match
+the units the game itself shows — with a column per pack under the trace,
+each marked with that pack's own icon. The tailer finds the icon in the
+local install (following the running game's binary back to its `data/`
+directory, then the usual Steam and
 standalone paths, then mod folders), crops the sheet's first 64×64 frame into
 `~/.cache/oblivion-signal/science-icons/`, and hands the rail those paths —
 Wube's art is read from the install and never vendored into this repo. When no
