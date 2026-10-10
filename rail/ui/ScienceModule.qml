@@ -3,8 +3,8 @@ import QtQuick.Shapes
 import Quickshell
 import Quickshell.Io
 
-// SCIENCE // RESEARCH — science-per-second off the Factorio addon's log:
-// a rolling 10-minute trace of packs consumed per second, the technology
+// SCIENCE // RESEARCH — research units per minute off the addon's log:
+// a rolling 10-minute trace of the effective research rate, the technology
 // under research and its progress. Same idiom as the load trace: hairline
 // grid, edge labels, coral anomaly marker, scan sweep.
 RailModule {
@@ -20,6 +20,7 @@ RailModule {
   property string queue: ""
   property real prog: 0
   property real total: 0
+  property real rate: 0
   property var packs: ({})
   property var spmHist: []
   property real spmMax: 60
@@ -53,6 +54,9 @@ RailModule {
     queue = d.queue || ""
     prog = d.prog || 0
     total = d.total || 0
+    // older addon builds have no rate field — show raw consumption until
+    // the game reloads the mod
+    rate = d.rate !== undefined ? d.rate : total
     packs = d.spm || ({})
     if (packNames.length === 0)
       packNames = Object.keys(packs).sort(function(a, b) {
@@ -67,7 +71,7 @@ RailModule {
       peak = Math.max(peak, packs[packNames[i]] || 0)
     maxPackRate = peak
     packMax = Math.max(1, packMax * 0.98, peak)
-    spmHist = spmHist.concat([total]).slice(-samples)
+    spmHist = spmHist.concat([rate]).slice(-samples)
     // scale to the tallest sample in the window, not a decaying peak, so a
     // point's height is fixed once drawn — the trace only re-scales when a
     // new maximum enters or the old one scrolls off the left edge
@@ -144,7 +148,7 @@ RailModule {
       width: parent.width * 0.62
       text: stale ? "AWAITING FACTORIO"
             : (queue !== "" ? "NEXT · " + queue.toUpperCase()
-                            : "SPS // PACKS CONSUMED")
+                            : "SPM // RESEARCHED")
       color: pal.mutedData
       font.family: "Blender Trial"
       font.pixelSize: 9
@@ -153,8 +157,7 @@ RailModule {
     }
     Text {
       anchors.right: parent.right
-      // the log carries per-minute rates; the game displays per-second
-      text: stale ? "--" : spm(total / 60) + "/s"
+      text: stale ? "--" : spm(rate) + " spm"
       color: pal.mutedData
       font.family: "OCRA"
       font.pixelSize: 9
@@ -333,7 +336,7 @@ RailModule {
       y: graph.height * 0.12
       width: 10
       height: 10
-      opacity: (root.stale || (root.tech !== "" && root.total === 0)) ? 0.9 : 0.15
+      opacity: (root.stale || (root.tech !== "" && root.rate === 0)) ? 0.9 : 0.15
 
       Rectangle {
         anchors.fill: parent
@@ -360,7 +363,7 @@ RailModule {
     // edge labels — the trace's cardinal marks
     Text {
       anchors { top: parent.top; topMargin: 3; left: parent.left; leftMargin: 4 }
-      text: root.spm(root.spmMax / 60)
+      text: root.spm(root.spmMax)
       color: pal.mutedData
       font.family: "Blender Trial"
       font.pixelSize: 8

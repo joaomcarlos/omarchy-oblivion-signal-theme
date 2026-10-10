@@ -61,10 +61,44 @@ local function sample()
   end
 
   local tech = force.current_research
+  -- Effective research rate: units of the current technology completed per
+  -- minute, measured from progress deltas over a ~60s window. Productivity,
+  -- lab speed and drain bonuses all show up in the progress rate, so this is
+  -- the real "SPM being researched" — raw pack consumption (spm above) is
+  -- what the factory physically pulls. The window smooths the bursts a
+  -- cargo-delivered factory produces; a tech switch or level wrap resets the
+  -- contiguous run so completion jumps never read as backward deltas.
+  local research_rate = 0
+  if tech then
+    local ring = storage.progress_samples or {}
+    storage.progress_samples = ring
+    ring[#ring + 1] = {
+      tick = game.tick,
+      progress = force.research_progress or 0,
+      name = tech.name,
+    }
+    if #ring > 64 then table.remove(ring, 1) end
+    local newest = ring[#ring]
+    local oldest = newest
+    for i = #ring - 1, 1, -1 do
+      local s = ring[i]
+      if s.name ~= tech.name or s.progress > oldest.progress then break end
+      oldest = s
+    end
+    local dt = newest.tick - oldest.tick
+    if dt > 0 then
+      research_rate = (newest.progress - oldest.progress)
+        * (tech.research_unit_count or 1) * 3600 / dt
+    end
+  else
+    storage.progress_samples = {}
+  end
+
   local line = helpers.table_to_json({
     t = game.tick,
     tech = tech and tech.name or "",
     prog = tech and round1(force.research_progress * 100) or 0,
+    rate = round1(research_rate),
     queue = force.research_queue[1] or "",
     spm = spm,
     total = round1(total),

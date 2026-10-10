@@ -140,19 +140,21 @@ session` over your latest prompt (`> …`) and the model's last few lines.
 
 `factorio/oblivion-science-signal/` is a Factorio 2.1 addon that appends one
 JSON line per second to `script-output/oblivion-science.jsonl`: the current
-research and its progress, and every science pack's consumption per minute
-(read from the item production statistics, where the GUI's consumption side
-is the API's `output` category). Science packs are discovered from every
-technology's research ingredients, so modded and Space Age packs come along.
+research and its progress, the effective research rate — technology units
+completed per minute, measured from progress deltas so lab speed,
+productivity and drain bonuses are all included — and every science pack's
+physical consumption per minute (read from the item production statistics,
+where the GUI's consumption side is the API's `output` category). Science
+packs are discovered from every technology's research ingredients, so modded
+and Space Age packs come along.
 
 `rail/ui/science.py` tails that file — emitting `{"stale": true}` when the
-game is not writing — and the panel graphs the last ten minutes of packs per
-second — the rates arrive per minute and the display divides by 60 to match
-the units the game itself shows — with a column per pack under the trace,
+game is not writing — and the panel graphs the last ten minutes of effective
+SPM, with a column per pack under the trace showing raw pack consumption,
 each marked with that pack's own icon. The tailer finds the icon in the
 local install (following the running game's binary back to its `data/`
-directory, then the usual Steam and
-standalone paths, then mod folders), crops the sheet's first 64×64 frame into
+directory, then the usual Steam and standalone paths, then mod folders),
+crops the sheet's first 64×64 frame into
 `~/.cache/oblivion-signal/science-icons/`, and hands the rail those paths —
 Wube's art is read from the install and never vendored into this repo. When no
 icon is found, the column falls back to a letter: the colour's letter for
