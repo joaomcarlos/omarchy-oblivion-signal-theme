@@ -16,6 +16,7 @@ RailModule {
 
   readonly property int samples: 600 // 1 Hz samples: a 10-minute window
   property bool stale: true
+  property bool udp: false // transport latch: datagrams reached the listener
   property string tech: ""
   property string queue: ""
   property real prog: 0
@@ -43,6 +44,10 @@ RailModule {
     }
     if (d.icons) {
       icons = d.icons
+      return
+    }
+    if (d.udp !== undefined) {
+      udp = !!d.udp
       return
     }
     if (d.stale) {
@@ -144,6 +149,7 @@ RailModule {
     height: 12
 
     Text {
+      id: legendLabel
       anchors.left: parent.left
       width: parent.width * 0.62
       text: stale ? "AWAITING FACTORIO"
@@ -154,6 +160,37 @@ RailModule {
       font.pixelSize: 9
       font.letterSpacing: 1.3
       elide: Text.ElideRight
+    }
+    // UDP link beacon — a scaled halo copy breathing behind the crisp label
+    Item {
+      visible: root.udp
+      x: legendLabel.contentWidth + 10
+      width: linkGlow.paintedWidth
+      height: 10
+
+      Text {
+        id: linkGlow
+        text: "LINK-LIVE!"
+        color: pal.coral
+        font.family: "Blender Trial"
+        font.pixelSize: 9
+        font.letterSpacing: 1.3
+        scale: 1.4
+        transformOrigin: Item.Left
+        SequentialAnimation on opacity {
+          running: root.udp
+          loops: Animation.Infinite
+          NumberAnimation { from: 0.12; to: 0.6; duration: 900; easing.type: Easing.InOutSine }
+          NumberAnimation { from: 0.6; to: 0.12; duration: 900; easing.type: Easing.InOutSine }
+        }
+      }
+      Text {
+        text: "LINK-LIVE!"
+        color: pal.coralBright
+        font.family: "Blender Trial"
+        font.pixelSize: 9
+        font.letterSpacing: 1.3
+      }
     }
     Text {
       anchors.right: parent.right

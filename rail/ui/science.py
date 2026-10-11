@@ -1,23 +1,31 @@
 #!/usr/bin/env python3
-"""Tail the science log written by the Oblivion Signal Factorio addon and
-stream each sample to the rail, one JSON line per stdout write.
+"""Relay science telemetry from the Oblivion Signal Factorio addon to the
+rail, one JSON line per stdout write.
 
-The addon (factorio/oblivion-science-signal) appends one line per second to
-script-output/oblivion-science.jsonl. When the game is not running — or the
-file has gone quiet — a {"stale": true} marker is emitted so the panel can
-say so instead of drawing a flat line.
+The addon (factorio/oblivion-science-signal) sends each sample as a UDP
+datagram to 127.0.0.1:34200 when the game is launched with --enable-lua-udp,
+and this listener ACKs every datagram back to the game's port 34199 — the
+mod only appends to script-output/oblivion-science.jsonl while no ACKs are
+arriving, so the file is a live fallback, not a second copy. This listener
+prefers UDP once a datagram has arrived — before that it tails the file, so
+games launched without the flag keep working unchanged. When the game is
+not running — or samples have gone quiet — a {"stale": true} marker is
+emitted so the panel can say so instead of drawing a flat line.
 """
 import glob
 import json
 import os
+import socket
 import subprocess
 import sys
 import time
 
+LISTEN_PORT = 34200
+GAME_PORT = 34199  # the game's --enable-lua-udp port; ACKs go back to it
 PATH = os.path.expanduser("~/.factorio/script-output/oblivion-science.jsonl")
 ICON_CACHE = os.path.expanduser("~/.cache/oblivion-signal/science-icons")
 STALE_AFTER = 5.0
-POLL = 0.5
+POLL = 0.25
 # On first read, skip most of an existing file so a long session does not
 # replay thousands of samples at once; the rail only keeps a 2-minute window.
 INITIAL_TAIL = 65536
@@ -102,54 +110,86 @@ def resolve_icons(names):
 
 
 def main():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind(("127.0.0.1", LISTEN_PORT))
+    sock.setblocking(False)
+
     offset = 0
     first = True
+    udp_seen = False
     last_sample = 0.0
     stale_sent = False
     known_packs = set()
 
+    def handle(sample):
+        nonlocal last_sample, stale_sent
+        if not isinstance(sample, dict):  # defensive: the port is open to localhost
+            return
+        emit(sample)
+        last_sample = time.time()
+        stale_sent = False
+        # crop the game's icons for any pack we have not seen yet
+        fresh = [n for n in (sample.get("spm") or {})
+                 if n not in known_packs]
+        if fresh:
+            known_packs.update(fresh)
+            icons = resolve_icons(sorted(known_packs))
+            if icons:
+                emit({"icons": icons})
+
     while True:
-        try:
-            size = os.path.getsize(PATH)
-        except OSError:
-            if not stale_sent:
-                emit({"stale": True})
-                stale_sent = True
-            time.sleep(1.0)
-            continue
+        # Drain whatever UDP has for us. One datagram is proof the game was
+        # launched with --enable-lua-udp, so it takes over the feed for good.
+        while True:
+            try:
+                data, _ = sock.recvfrom(65535)
+            except BlockingIOError:
+                break
+            try:
+                sample = json.loads(data.decode("utf-8", "replace"))
+            except ValueError:
+                continue
+            if isinstance(sample, dict):
+                if not udp_seen:
+                    emit({"udp": True})  # link went live
+                    udp_seen = True
+                # ACK back to the game's port — the mod gates its file
+                # fallback on these arriving.
+                sock.sendto(b"oblivion-ack", ("127.0.0.1", GAME_PORT))
+                handle(sample)
 
-        if size < offset:  # the addon rewrote the file
-            offset = 0
-        if first and size > INITIAL_TAIL:
-            offset = size - INITIAL_TAIL
-
-        if size > offset:
-            with open(PATH, "r", errors="replace") as handle:
-                handle.seek(offset)
-                for line in handle:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        sample = json.loads(line)
-                    except ValueError:
-                        continue  # partial line from a concurrent append
-                    emit(sample)
-                    last_sample = time.time()
-                    stale_sent = False
-                    # crop the game's icons for any pack we have not seen yet
-                    fresh = [n for n in (sample.get("spm") or {})
-                             if n not in known_packs]
-                    if fresh:
-                        known_packs.update(fresh)
-                        icons = resolve_icons(sorted(known_packs))
-                        if icons:
-                            emit({"icons": icons})
-                offset = handle.tell()
+        # Until UDP proves itself, fall back to tailing the file.
+        if not udp_seen:
+            try:
+                size = os.path.getsize(PATH)
+            except OSError:
+                size = -1
+            if size < 0:
+                if not stale_sent:
+                    emit({"stale": True})
+                    stale_sent = True
+            else:
+                if size < offset:  # the addon rewrote the file
+                    offset = 0
+                if first and size > INITIAL_TAIL:
+                    offset = size - INITIAL_TAIL
+                if size > offset:
+                    with open(PATH, "r", errors="replace") as handle_file:
+                        handle_file.seek(offset)
+                        for line in handle_file:
+                            line = line.strip()
+                            if not line:
+                                continue
+                            try:
+                                handle(json.loads(line))
+                            except ValueError:
+                                continue  # partial line from a concurrent append
+                        offset = handle_file.tell()
             first = False
-            continue
 
-        first = False
+        if udp_seen and last_sample and time.time() - last_sample > STALE_AFTER:
+            udp_seen = False       # feed went quiet — report link down and
+            emit({"udp": False})   # let the file tail take over again
         if last_sample and time.time() - last_sample > STALE_AFTER and not stale_sent:
             emit({"stale": True})
             stale_sent = True

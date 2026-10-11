@@ -62,7 +62,7 @@ ensure_rail_autostart() {
   cat >>"$autostart_lua" <<EOF
 
 $rail_begin
-o.exec_on_start("quickshell -p " .. (os.getenv("HOME") or "") .. "/.config/omarchy/themes/oblivion-signal/rail")
+o.exec_on_start((os.getenv("HOME") or "") .. "/.config/omarchy/themes/oblivion-signal/rail/start.sh")
 $rail_end
 EOF
 }
@@ -70,7 +70,7 @@ EOF
 start_rail() {
   pgrep -f "$rail_pattern" >/dev/null && return
   [[ -d $rail_dir ]] || return
-  (setsid quickshell -p "$rail_dir" >/dev/null 2>&1 &)
+  (setsid bash "$rail_dir/start.sh" >/dev/null 2>&1 &)
 }
 
 stop_rail() {

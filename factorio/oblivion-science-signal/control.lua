@@ -1,15 +1,21 @@
 -- Oblivion Signal science telemetry.
 --
--- Writes one JSON line per second to script-output/oblivion-science.jsonl for
--- the Oblivion Signal desktop rail to graph: the current research, its
--- progress, and science packs consumed per minute.
+-- Sends one JSON sample per second as a UDP datagram to the Oblivion Signal
+-- desktop rail (127.0.0.1:34200), which graphs the current research, its
+-- progress, and science packs consumed per minute. The rail ACKs each
+-- datagram back to the game's --enable-lua-udp port; while those ACKs keep
+-- arriving the mod does no file IO at all. Without the flag send_udp/recv_udp
+-- are silent no-ops, no ACK ever comes back, and the file fallback engages:
+-- one JSON line per second appended to script-output/oblivion-science.jsonl.
 --
 -- Science per minute comes from the item production statistics, where the
 -- "output" side is consumption (the GUI shows consumption on the right).
 
 local OUTPUT_FILE = "oblivion-science.jsonl"
+local TELEMETRY_PORT = 34200 -- the rail's listener port; ACKs come from here
 local SAMPLE_INTERVAL = 60 -- ticks: one sample per second
 local ROTATE_AFTER = 3600 -- samples: rewrite the file rather than grow forever
+local ACK_FRESH_TICKS = 120 -- no ACK within this window -> file writes resume
 
 -- Union of every technology's research ingredients: authoritative across
 -- vanilla, Space Age, and modded science packs. Built once, cached in storage.
@@ -104,16 +110,32 @@ local function sample()
     total = round1(total),
   })
 
-  local append = not storage.start_fresh
-  storage.start_fresh = false
-  storage.samples = storage.samples + 1
-  if storage.samples > ROTATE_AFTER then
-    storage.samples = 1
-    append = false
-  end
+  helpers.send_udp(TELEMETRY_PORT, line)
+  -- Pump the inbound socket so on_udp_packet_received can dispatch; no-op
+  -- when the game wasn't launched with --enable-lua-udp.
+  helpers.recv_udp()
 
-  helpers.write_file(OUTPUT_FILE, line .. "\n", append)
+  local udp_live = storage.udp_last_ack ~= nil
+      and (game.tick - storage.udp_last_ack) < ACK_FRESH_TICKS
+  if not udp_live then
+    local append = not storage.start_fresh
+    storage.start_fresh = false
+    storage.samples = (storage.samples or 0) + 1
+    if storage.samples > ROTATE_AFTER then
+      storage.samples = 1
+      append = false
+    end
+    helpers.write_file(OUTPUT_FILE, line .. "\n", append)
+  end
 end
+
+script.on_event(defines.events.on_udp_packet_received, function(event)
+  -- The rail's listener ACKs from its bound port; one ACK is proof the flag
+  -- is set, a listener is alive, and samples are being delivered.
+  if event.source_port == TELEMETRY_PORT then
+    storage.udp_last_ack = event.tick
+  end
+end)
 
 script.on_init(function()
   storage.science_packs = collect_science_packs()
