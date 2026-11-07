@@ -9,6 +9,12 @@ not before it.
 ![Desktop](preview.png)
 ![Lock screen](preview-unlock.png)
 
+## Screenshots
+
+![btop and Nautilus under the theme, bar on top, telemetry rail live on the right edge](screenshots/desktop.png)
+
+![Telemetry rail — signal FFT, system vitals, load trace, and live Factorio science telemetry](screenshots/rail.png)
+
 ## Install
 
 ```bash
@@ -238,7 +244,7 @@ omarchy plymouth set '#0D141C' '#B5D2E3' ~/.config/omarchy/themes/oblivion-signa
 | `plymouth/logo.svg` / `.png` | Boot splash reticle mark |
 | `backgrounds/` | Wallpaper — dot lattice, faint reticle, signal trace, coordinate marks (+ SVG source) |
 | `preview.png` / `preview-unlock.png` | Theme picker previews |
-| `hooks/theme-set.d/oblivion-signal` | Optional automation hook (font, GTK CSS, icons, cursor) |
+| `screenshots/` | README screenshots |
 
 ## Palette
 
