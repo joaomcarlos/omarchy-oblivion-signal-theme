@@ -96,8 +96,19 @@ local function sample()
       research_rate = (newest.progress - oldest.progress)
         * (tech.research_unit_count or 1) * 3600 / dt
     end
+    -- Research-queue jugglers can swap current_research every few seconds;
+    -- each switch resets the progress window, which reads as a spike to zero
+    -- on the rail's trace. Carry the last trustworthy rate until ~10s of
+    -- contiguous same-tech data has accumulated, then let the real value
+    -- take over again (a genuinely stalled tech still decays to zero).
+    if dt >= 600 then
+      storage.last_rate = research_rate
+    elseif storage.last_rate then
+      research_rate = storage.last_rate
+    end
   else
     storage.progress_samples = {}
+    storage.last_rate = nil
   end
 
   local line = helpers.table_to_json({
