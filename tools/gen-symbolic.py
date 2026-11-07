@@ -2,7 +2,7 @@
 """Generate -symbolic icons: 16px monochrome versions of the glyph set."""
 import os
 
-ROOT = "/home/jc/Projects/personal/oblivion-theme/icons/oblivion-signal"
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "icons", "oblivion-signal")
 FG = "#B5D2E3"   # single color; GTK tints -symbolic icons anyway
 SW = 1.3
 

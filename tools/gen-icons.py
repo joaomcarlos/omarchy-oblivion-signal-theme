@@ -2,7 +2,7 @@
 """Generate the Oblivion Signal icon theme — thin monoline glyphs."""
 import os
 
-ROOT = "/home/jc/Projects/personal/oblivion-theme/icons/oblivion-signal"
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "icons", "oblivion-signal")
 ACC = "#6FA8CC"   # active steel-blue strokes
 MUT = "#5F7F93"   # secondary/muted strokes
 HI  = "#A3CFE3"   # highlight details
