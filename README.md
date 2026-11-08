@@ -15,6 +15,18 @@ not before it.
 
 ![Telemetry rail — signal FFT, system vitals, load trace, and live Factorio science telemetry](screenshots/rail.png)
 
+### Design mockups
+
+Pre-implementation mockups from the design investigation — fictional
+content rendered in HTML to explore the visual language, not captures
+of the running system.
+
+| | |
+| --- | --- |
+| ![Desktop composite mockup — terminal, rail and notification hero frame](screenshots/mockups/desktop-composite.png) | ![Lock screen mockup — reticle auth instrument](screenshots/mockups/lock-screen.png) |
+| ![Launcher mockup — acquisition pane](screenshots/mockups/launcher.png) | ![Notification mockup — info, warning and error states](screenshots/mockups/notification.png) |
+| ![Bar/workspaces mockup — module spec sheet](screenshots/mockups/bar-workspaces.png) | ![Boot splash mockup — TET startup sequence](screenshots/mockups/boot.png) |
+
 ## Install
 
 ```bash
