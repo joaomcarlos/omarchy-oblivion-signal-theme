@@ -3,10 +3,12 @@ import QtQuick.Shapes
 import Quickshell
 import Quickshell.Io
 
-// SCIENCE // RESEARCH — research units per minute off the addon's log:
-// a rolling 10-minute trace of the effective research rate, the technology
-// under research and its progress. Same idiom as the load trace: hairline
-// grid, edge labels, coral anomaly marker, scan sweep.
+// SCIENCE // RESEARCH — effective science per minute off the addon's log:
+// a rolling 10-minute trace of the research-unit rate (ESPM — raw pack
+// consumption multiplied by lab drain, module and research productivity,
+// so it reads well above the game's own packs/min), the technology under
+// research and its progress. Same idiom as the load trace: hairline grid,
+// edge labels, coral anomaly marker, scan sweep.
 RailModule {
   id: root
   label: "SCIENCE // RESEARCH"
@@ -154,7 +156,7 @@ RailModule {
       width: parent.width * 0.62
       text: stale ? "AWAITING FACTORIO"
             : (queue !== "" ? "NEXT · " + queue.toUpperCase()
-                            : "SPM // RESEARCHED")
+                            : "ESPM // RESEARCHED")
       color: pal.mutedData
       font.family: "Blender Trial"
       font.pixelSize: 9
@@ -194,7 +196,8 @@ RailModule {
     }
     Text {
       anchors.right: parent.right
-      text: stale ? "--" : spm(rate) + " spm"
+      // raw packs/min (what the game shows) -> effective units/min
+      text: stale ? "--" : spm(total) + ">" + spm(rate) + " espm"
       color: pal.mutedData
       font.family: "OCRA"
       font.pixelSize: 9

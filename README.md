@@ -116,8 +116,10 @@ swaps. Four modules, top to bottom:
   DISK read/write rates plus usage percent, and UPTIME. GPU rows hide when
   `nvidia-smi` reports nothing.
 - **TRACE // LOAD** — a rolling two-minute CPU/MEM trace with NET ticks.
-- **SCIENCE // RESEARCH** — the Factorio addon's science-per-minute trace,
-  the technology under research, and its progress (see below).
+- **SCIENCE // RESEARCH** — the Factorio addon's effective-science-per-minute
+  trace (raw packs/min multiplied by lab drain, module and research
+  productivity, so it reads above the game's own packs/min), the technology
+  under research, and its progress (see below).
 - **AGENTS // LIVE** — the five most-recently-active running Devin and
   Codex sessions (see below).
 
@@ -186,7 +188,8 @@ live, then sticks with it. Without the flag `send_udp`/`recv_udp` silently
 do nothing and nothing breaks. It emits
 `{"stale": true}` when samples go quiet — and the panel graphs the last ten
 minutes of effective
-SPM, with a column per pack under the trace showing raw pack consumption,
+SPM (readout: raw packs/min `>` effective units/min `espm`), with a column
+per pack under the trace showing raw pack consumption,
 each marked with that pack's own icon. The listener finds the icon in the
 local install (following the running game's binary back to its `data/`
 directory, then the usual Steam and standalone paths, then mod folders),
