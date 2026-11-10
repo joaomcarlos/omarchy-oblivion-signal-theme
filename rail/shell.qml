@@ -73,7 +73,23 @@ ShellRoot {
         AgentsModule {
           pal: shell.pal
           vitals: shell.vitals
+          // Process cards take priority over the agents' transcript tails.
+          maxHeight: Math.max(0, procsModule.y - parent.y - y - parent.spacing)
         }
+      }
+
+      ProcsModule {
+        id: procsModule
+        anchors {
+          left: parent.left
+          right: parent.right
+          bottom: parent.bottom
+          leftMargin: 14
+          rightMargin: 14
+          bottomMargin: 14
+        }
+        pal: shell.pal
+        vitals: shell.vitals
       }
     }
   }
