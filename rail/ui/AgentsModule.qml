@@ -12,6 +12,14 @@ RailModule {
   stateDot: agents.length > 0 ? pal.ok : pal.mutedData
 
   property var agents: []
+  property real maxHeight: Infinity
+  height: Math.min(implicitHeight, maxHeight)
+  clip: true
+
+  readonly property var summaryFont: FontMetrics {
+    font.family: "OCRA"
+    font.pixelSize: 9
+  }
 
   Column {
     width: parent.width
@@ -34,11 +42,17 @@ RailModule {
       model: root.agents
 
       Column {
+        id: agentEntry
         required property var modelData
+        readonly property real budget: Math.max(0,
+          (root.maxHeight - 32 - 10 * (root.agents.length - 1)) / Math.max(1, root.agents.length))
         width: parent ? parent.width : 300
+        height: Math.min(implicitHeight, budget)
+        clip: true
         spacing: 2
 
         Text {
+          id: agentHeading
           text: (modelData.kind === "codex" ? "CODEX — " : "DEVIN — ")
                 + modelData.id.toUpperCase().replace(/-/g, "·")
           color: pal.accent
@@ -48,6 +62,7 @@ RailModule {
         }
 
         Text {
+          id: agentPrompt
           visible: modelData.prompt !== ""
           width: parent.width
           text: "> " + modelData.prompt
@@ -59,7 +74,11 @@ RailModule {
         }
 
         Repeater {
-          model: modelData.lines
+          // Drop transcript lines evenly across sessions, not whole agents.
+          model: agentEntry.modelData.lines.slice(0, Math.max(0, Math.floor(
+            (agentEntry.budget - agentHeading.height
+             - (agentPrompt.visible ? agentPrompt.height + agentEntry.spacing : 0))
+            / (root.summaryFont.height + agentEntry.spacing))))
           Text {
             required property string modelData
             width: parent.width

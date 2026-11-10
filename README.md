@@ -122,6 +122,11 @@ swaps. Four modules, top to bottom:
   under research, and its progress (see below).
 - **AGENTS // LIVE** — the five most-recently-active running Devin and
   Codex sessions (see below).
+- **PROCESS // TOP LOAD** — the five heaviest apps by live CPU%
+  (`rail/ui/procs.py`, top-style deltas summed across each app's
+  processes), one 64px square per app with its name, CPU% and memory RSS.
+  All five fit in one row. Cards keep their space; agent transcript summaries
+  shorten first when the rail is full.
 
 The hook installs an autostart block and starts the rail when the theme is
 applied. To run it manually:
