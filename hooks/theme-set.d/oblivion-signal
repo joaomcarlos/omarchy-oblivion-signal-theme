@@ -26,6 +26,9 @@ autostart_lua="$HOME/.config/hypr/autostart.lua"
 rail_begin="-- >>> oblivion-signal rail"
 rail_end="-- <<< oblivion-signal rail"
 rail_pattern="quickshell.*oblivion-signal/rail"
+rail_service="oblivion-rail.service"
+rail_unit_src="$rail_dir/oblivion-rail.service"
+systemd_user_dir="$HOME/.config/systemd/user"
 
 # Swap the bar's workspaces slot between the stock widget and the theme's
 # plugin clone (zero-padded readouts, accent rule, urgent flicker).
@@ -67,13 +70,35 @@ $rail_end
 EOF
 }
 
+# The rail is supervised by a systemd --user unit (Restart=always, gated on
+# oblivion-signal being the active theme) so updates and silent deaths can't
+# strand it. The unit file lives in the repo and is linked into place; if the
+# link was ever wiped this reinstalls it.
+ensure_rail_service() {
+  [[ -f $rail_unit_src ]] || return
+  mkdir -p "$systemd_user_dir"
+  ln -sfn "$rail_unit_src" "$systemd_user_dir/$rail_service"
+  systemctl --user daemon-reload 2>/dev/null || return
+  systemctl --user enable "$rail_service" >/dev/null 2>&1 || true
+}
+
+rail_service_available() {
+  systemctl --user cat "$rail_service" >/dev/null 2>&1
+}
+
 start_rail() {
-  pgrep -f "$rail_pattern" >/dev/null && return
   [[ -d $rail_dir ]] || return
+  # The unit's ExecCondition gates on the active theme, and its start.sh
+  # adopts a foreign instance once it dies, so `start` is always safe.
+  if rail_service_available; then
+    systemctl --user start "$rail_service" 2>/dev/null && return
+  fi
+  pgrep -f "$rail_pattern" >/dev/null && return
   (setsid bash "$rail_dir/start.sh" >/dev/null 2>&1 &)
 }
 
 stop_rail() {
+  systemctl --user stop "$rail_service" 2>/dev/null
   pkill -f "$rail_pattern" 2>/dev/null
 }
 
@@ -137,6 +162,7 @@ if [[ $theme == "oblivion-signal" ]]; then
   omarchy-shell -q shell rescanPlugins || true
   omarchy-shell -q shell reloadConfig || true
   ensure_rail_autostart
+  ensure_rail_service
   start_rail
 elif [[ $theme != "oblivion-signal" ]]; then
   stop_rail
