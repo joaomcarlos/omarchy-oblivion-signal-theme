@@ -10,6 +10,10 @@
 --
 -- Science per minute comes from the item production statistics, where the
 -- "output" side is consumption (the GUI shows consumption on the right).
+-- Reading those statistics is the expensive part — one LuaFlowStatistics
+-- object plus ~12 flow_count reads per surface — so instead of paying it
+-- all in one tick, a sweep job walks a few surfaces per tick and the emit
+-- tick only encodes the accumulated totals.
 
 local OUTPUT_FILE = "oblivion-science.jsonl"
 local TELEMETRY_PORT = 34200 -- the rail's listener port; ACKs come from here
@@ -40,28 +44,60 @@ local function round1(value)
   return math.floor(value * 10 + 0.5) / 10
 end
 
-local function sample()
-  if not storage.science_packs then
-    storage.science_packs = collect_science_packs()
-  end
+-- Sweep state lives in upvalues, not storage: it is transient by design and
+-- simply restarts on load. `sweep` is the in-flight job; `accumulated`
+-- holds the {pack -> summed rate} map from the last completed pass.
+local sweep
+local accumulated
 
-  local force = game.forces.player
-  local stats = {}
+local function start_sweep()
+  local surfaces = {}
   for _, surface in pairs(game.surfaces) do
-    stats[#stats + 1] = force.get_item_production_statistics(surface)
+    surfaces[#surfaces + 1] = surface
   end
+  sweep = {
+    surfaces = surfaces,
+    -- Pace the pass to finish inside the window; +1 absorbs surfaces added
+    -- while the sweep is in flight.
+    budget = math.ceil(#surfaces / (SAMPLE_INTERVAL - 1)) + 1,
+    index = 1,
+    totals = {},
+  }
+end
+
+local function step_sweep()
+  local force = game.forces.player
+  local last = math.min(sweep.index + sweep.budget - 1, #sweep.surfaces)
+  for i = sweep.index, last do
+    local surface = sweep.surfaces[i]
+    if surface.valid then
+      local flow = force.get_item_production_statistics(surface)
+      for _, name in ipairs(storage.science_packs) do
+        sweep.totals[name] = (sweep.totals[name] or 0) + flow.get_flow_count({
+          name = name,
+          category = "output",
+          precision_index = defines.flow_precision_index.one_minute,
+        })
+      end
+    end
+  end
+  sweep.index = last + 1
+  if sweep.index > #sweep.surfaces then
+    accumulated = sweep.totals
+    -- Persist the finished pass so the first emit after a load reuses real
+    -- numbers instead of dipping to zero until a fresh sweep completes.
+    storage.last_totals = accumulated
+    sweep = nil -- idle until the next emit starts a fresh pass
+  end
+end
+
+local function emit()
+  local force = game.forces.player
+  local totals = accumulated or storage.last_totals or {}
 
   local spm, total = {}, 0
   for _, name in ipairs(storage.science_packs) do
-    local rate = 0
-    for _, flow in ipairs(stats) do
-      rate = rate + flow.get_flow_count({
-        name = name,
-        category = "output",
-        precision_index = defines.flow_precision_index.one_minute,
-      })
-    end
-    rate = round1(rate)
+    local rate = round1(totals[name] or 0)
     spm[name] = rate
     total = total + rate
   end
@@ -140,6 +176,22 @@ local function sample()
   end
 end
 
+local function tick()
+  if not storage.science_packs then
+    storage.science_packs = collect_science_packs()
+  end
+  if game.tick % SAMPLE_INTERVAL == 0 then
+    emit()
+    start_sweep()
+  elseif sweep then
+    step_sweep()
+  elseif not accumulated then
+    -- Post-load the upvalues reset; start refreshing stale totals now
+    -- rather than waiting for the next emit boundary.
+    start_sweep()
+  end
+end
+
 script.on_event(defines.events.on_udp_packet_received, function(event)
   -- The rail's listener ACKs from its bound port; one ACK is proof the flag
   -- is set, a listener is alive, and samples are being delivered.
@@ -158,4 +210,4 @@ script.on_configuration_changed(function()
   storage.science_packs = collect_science_packs()
 end)
 
-script.on_nth_tick(SAMPLE_INTERVAL, sample)
+script.on_nth_tick(1, tick)
