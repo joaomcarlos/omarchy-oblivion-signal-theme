@@ -164,7 +164,11 @@ local function emit()
 
   local udp_live = storage.udp_last_ack ~= nil
       and (game.tick - storage.udp_last_ack) < ACK_FRESH_TICKS
-  if not udp_live then
+  -- The tick guard keeps a second emission of the same tick from appending
+  -- twice. Reloads that replay the same boundary still append one line per
+  -- session — truthful, and undetectable from inside the mod.
+  if not udp_live and storage.last_written_tick ~= game.tick then
+    storage.last_written_tick = game.tick
     local append = not storage.start_fresh
     storage.start_fresh = false
     storage.samples = (storage.samples or 0) + 1
