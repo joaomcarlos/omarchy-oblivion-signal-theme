@@ -15,6 +15,7 @@ emitted so the panel can say so instead of drawing a flat line.
 import glob
 import json
 import os
+from pathlib import Path
 import socket
 import subprocess
 import sys
@@ -23,6 +24,10 @@ import time
 LISTEN_PORT = 34200
 GAME_PORT = 34199  # the game's --enable-lua-udp port; ACKs go back to it
 PATH = os.path.expanduser("~/.factorio/script-output/oblivion-science.jsonl")
+UDP_SNAPSHOT = (
+    Path(os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}"))
+    / "oblivion-science.json"
+)
 ICON_CACHE = os.path.expanduser("~/.cache/oblivion-signal/science-icons")
 STALE_AFTER = 5.0
 POLL = 0.25
@@ -36,6 +41,13 @@ def emit(payload):
         print(json.dumps(payload), flush=True)
     except BrokenPipeError:  # the rail went away; nothing left to feed
         sys.exit(0)
+
+
+def publish_udp_sample(data):
+    """Publish the latest datagram for local displays that update on a timer."""
+    pending = UDP_SNAPSHOT.with_suffix(".tmp")
+    pending.write_bytes(data)
+    pending.replace(UDP_SNAPSHOT)
 
 
 def data_roots():
@@ -117,6 +129,7 @@ def main():
     offset = 0
     first = True
     udp_seen = False
+    snapshot_error = None
     last_sample = 0.0
     stale_sent = False
     known_packs = set()
@@ -156,6 +169,15 @@ def main():
                 # ACK back to the game's port — the mod gates its file
                 # fallback on these arriving.
                 sock.sendto(b"oblivion-ack", ("127.0.0.1", GAME_PORT))
+                if isinstance(sample.get("t"), int):
+                    try:
+                        publish_udp_sample(data)
+                    except OSError as exc:
+                        if exc.errno != snapshot_error:
+                            print(f"Could not publish science snapshot: {exc}", file=sys.stderr)
+                        snapshot_error = exc.errno
+                    else:
+                        snapshot_error = None
                 handle(sample)
 
         # Until UDP proves itself, fall back to tailing the file.
